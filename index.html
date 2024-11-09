@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenShadow Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Section -->
+        <section id="Sidebar" class="col-md-3 col-lg-2 bg-light vh-100 d-flex flex-column">
+            <h2 class="text-center text-success mt-3">GreenShadow</h2>
+            <nav class="nav sidebar flex-column p-3">
+                <a id="btnDashBoard" class="nav-link" href="#"><i class="fas fa-home me-2"></i>Dashboard</a>
+                <a id="btnField" class="nav-link" href="#"><i class="fas fa-seedling me-2"></i>Field</a>
+                <a id="btnCrop" class="nav-link" href="#"><i class="fas fa-leaf me-2"></i>Crop</a>
+                <a id="btnStaff" class="nav-link" href="#"><i class="fas fa-users me-2"></i>Staff</a>
+                <a id="btnLog" class="nav-link" href="#"><i class="fas fa-book me-2"></i>Monitoring Log</a>
+                <a id="btnVehicle" class="nav-link" href="#"><i class="fas fa-truck me-2"></i>Vehicle</a>
+                <a id="btnEquipment" class="nav-link" href="#"><i class="fas fa-wrench me-2"></i>Equipment</a>
+                <hr>
+                <h5 class="text-muted">Settings</h5>
+                <a id="btnMyProfile" class="nav-link" href="#"><i class="fas fa-user me-2"></i>My Profile</a>
+            </nav>
+            <!-- <div class="help-center mt-auto p-3">
+                <p>Help Center</p>
+                <p>Having trouble with plants? Contact us for more questions.</p>
+                <a class="btn btn-success btn-sm" href="#">Go to Help Center</a>
+            </div> -->
+        </section>
+
+<!-- Main Content Section -->
+        <section id="dashboardPage" class="col-md-9 col-lg-10">
+            <!-- Header -->
+            <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
+                <div>
+                    <h1>Welcome to GreenShadow</h1>
+                    <p>Hello Pihu, welcome back!</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Search plant name here">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- Banner -->
+            <div class="banner text-center text-white mb-4 p-3" style="background-color: #28a745;">
+                <h2>Create and sell extraordinary products</h2>
+                <p>The world's first and largest handmade products marketplace</p>
+                <a class="btn btn-light me-2" href="#">Explore More</a>
+                <a class="btn btn-outline-light" href="#">Top Sellers</a>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats p-4 mb-4 bg-light text-center">
+                <h3 class="text-success">My Stats</h3>
+                <p>Today: 4 Orders</p>
+                <p>This Month: 173 Orders</p>
+                <a class="btn btn-success btn-sm" href="#">Go to my Orders</a>
+            </div>
+
+            <!-- Listings -->
+            <div class="listings mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>My Listings</h3>
+                    <a class="text-success" href="#">View All</a>
+                </div>
+                <div class="d-flex flex-wrap">
+                    <div class="card me-3 mb-3" style="width: 18rem;">
+                        <img src="https://storage.googleapis.com/a1aa/image/nieKehh2uefWrSOM340fp7S7SG3MIOvnfleGEJCweGLnBIKvTA.jpg" class="card-img-top" alt="Baby rubberplant">
+                        <div class="card-body text-center"><h5>Baby rubberplant</h5></div>
+                    </div>
+                    <div class="card me-3 mb-3" style="width: 18rem;">
+                        <img src="https://storage.googleapis.com/a1aa/image/YGEW17gb5PYfVaAi1kNfm2zLbEboriDv59TkBAeHnU8EQUeOB.jpg" class="card-img-top" alt="Bunny Ear Cactus">
+                        <div class="card-body text-center"><h5>Bunny Ear Cactus</h5></div>
+                    </div>
+                    <div class="card mb-3" style="width: 18rem;">
+                        <img src="https://storage.googleapis.com/a1aa/image/LcQarcQbDTrgC9ombylYUxfRlFPvYJcC8OsggZfJQm2AIKvTA.jpg" class="card-img-top" alt="Spineless yucca">
+                        <div class="card-body text-center"><h5>Spineless yucca</h5></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Crop section -->
+        <section id="cropPage" class="col-md-9 col-lg-10">
+            <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
+                <div>
+                    <h1>Crop Servise</h1>
+                    <p>Green Shadow (pvt) Ltd.</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Search Crop here">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- Add Crop Button -->
+            <div class="mb-3">
+                <button class="btn btn-success">Add Crop</button>
+            </div>
+
+            <!-- Crop Table -->
+            <div class="table-responsive">
+                <table class="table .table-borderless">
+                    <thead class="">
+                        <tr>
+                            <th>Crop Code</th>
+                            <th>Crop Common Name</th>
+                            <th>Crop Scientific Name</th>
+                            <th>Category</th>
+                            <th>Crop Season</th>
+                            <th>Field</th>
+                            <th>View</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample data row -->
+                        <tr>
+                            <td>C001</td>
+                            <td>Wheat</td>
+                            <td>Triticum aestivum</td>
+                            <td>Cereal</td>
+                            <td>Winter</td>
+                            <td>Field 1</td>
+                            <td>
+                                <button class="btn btn-info btn-sm">View More</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+<!-- Vehicle Section -->
+        <section id="vehiclePage" class="col-md-9 col-lg-10">
+            <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
+                <div>
+                    <h1>Vehicle Servise</h1>
+                    <p>Green Shadow (pvt) Ltd.</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Search vehicle here">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- Add Vehicle Button -->
+            <div class="mb-3">
+                <button class="btn btn-success">Add Vehicle</button>
+            </div>
+
+            <!-- Vehicle Table -->
+            <div class="table-responsive">
+                <table class="table .table-borderless">
+                    <thead class="">
+                        <tr>
+                            <th>Vehicle code</th>
+                            <th>License plate number</th>
+                            <th>Vehicle category</th>
+                            <th>Fuel type</th>
+                            <th>Status</th>
+                            <th>Allocated staff member</th>
+                            <th>Remarks</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample data row -->
+                        <tr>
+                            <td>V001</td>
+                            <td>DF 5674</td>
+                            <td>Lorry</td>
+                            <td>Deisel</td>
+                            <td>Available</td>
+                            <td>Member</td>
+                            <td>N/A 1</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+    </div>
+</div>
+<script src="assets/js/jquery-3.6.1.min.js"></script>
+<script src="assets/js/SPANavBar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-QVnVybkjBYsqNynDJvFn+L4c7mPlGAtfpO8XirIjUw3rxG1VQ+V7PF1yFYuo+pK4" crossorigin="anonymous"></script>
+</body>
+</html>
