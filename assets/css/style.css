@@ -42,16 +42,50 @@ body {
 }
         
 .banner { 
-    background: url('https://placehold.co/600x200') center/cover; 
+    background-image: url('/assets/images/photo-1684498887952-c7117fdffce3.jpeg') !important; 
+    background-size: cover; 
+    background-position: center; 
     border-radius: 10px; 
     padding: 20px; 
     color: #fff; 
+    height: 320px;
 }
-       
-.card img { 
-    border-radius: 10px;
+
+#card-container{
+    padding: 0;
 }
-        
-.card { 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+
+.order-card {
+    color: #fff;
+}
+
+.bg-c-green {
+    background: linear-gradient(45deg,#34be54,#59dd78);
+}
+
+
+.card {
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    border: none;
+    margin-bottom: 30px;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.card .card-block {
+    padding: 20px;
+}
+
+.order-card i {
+    font-size: 26px;
+}
+
+.f-left {
+    float: left;
+}
+
+.f-right {
+    float: right;
 }

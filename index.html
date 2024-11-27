@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="assets/css/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container-fluid">
     <div class="row">
-        <!-- Sidebar Section -->
+<!-- Sidebar Section -->
         <section id="Sidebar" class="col-md-3 col-lg-2 bg-light vh-100 d-flex flex-column">
             <h2 class="text-center text-success mt-3">GreenShadow</h2>
             <nav class="nav sidebar flex-column p-3">
@@ -33,54 +34,68 @@
             </div> -->
         </section>
 
-<!-- Main Content Section -->
+<!-- DashBoard Section -->
         <section id="dashboardPage" class="col-md-9 col-lg-10">
             <!-- Header -->
             <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
                 <div>
-                    <h1>Welcome to GreenShadow</h1>
-                    <p>Hello Pihu, welcome back!</p>
+                    <h1>Welcome to Green Shadow Management System</h1>
+                    <p>Hello, User's Name!</p>
                 </div>
                 <div class="d-flex align-items-center">
-                    <input class="form-control me-2" type="text" placeholder="Search plant name here">
+                    <input class="form-control me-2" type="text" placeholder="Search here">
                     <i class="fas fa-search"></i>
                 </div>
             </div>
 
             <!-- Banner -->
-            <div class="banner text-center text-white mb-4 p-3" style="background-color: #28a745;">
+            <div class="banner text-center text-white mb-4 p-5">
                 <h2>Create and sell extraordinary products</h2>
                 <p>The world's first and largest handmade products marketplace</p>
                 <a class="btn btn-light me-2" href="#">Explore More</a>
                 <a class="btn btn-outline-light" href="#">Top Sellers</a>
             </div>
-
-            <!-- Stats -->
-            <div class="stats p-4 mb-4 bg-light text-center">
-                <h3 class="text-success">My Stats</h3>
-                <p>Today: 4 Orders</p>
-                <p>This Month: 173 Orders</p>
-                <a class="btn btn-success btn-sm" href="#">Go to my Orders</a>
-            </div>
-
-            <!-- Listings -->
-            <div class="listings mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3>My Listings</h3>
-                    <a class="text-success" href="#">View All</a>
-                </div>
-                <div class="d-flex flex-wrap">
-                    <div class="card me-3 mb-3" style="width: 18rem;">
-                        <img src="https://storage.googleapis.com/a1aa/image/nieKehh2uefWrSOM340fp7S7SG3MIOvnfleGEJCweGLnBIKvTA.jpg" class="card-img-top" alt="Baby rubberplant">
-                        <div class="card-body text-center"><h5>Baby rubberplant</h5></div>
+        
+            <div class="container" id="card-container">
+                <div class="row">
+                    <div class="col-md-4 col-xl-3">
+                        <div class="card bg-c-green order-card">
+                            <div class="card-block">
+                                <h6 class="m-b-20">Total Fields</h6>
+                                <h2 class="text-right"><i class="fas fa-seedling f-right"></i><span >486</span></h2>
+                                <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card me-3 mb-3" style="width: 18rem;">
-                        <img src="https://storage.googleapis.com/a1aa/image/YGEW17gb5PYfVaAi1kNfm2zLbEboriDv59TkBAeHnU8EQUeOB.jpg" class="card-img-top" alt="Bunny Ear Cactus">
-                        <div class="card-body text-center"><h5>Bunny Ear Cactus</h5></div>
+                    
+                    <div class="col-md-4 col-xl-3">
+                        <div class="card bg-c-green order-card">
+                            <div class="card-block">
+                                <h6 class="m-b-20">Staff Members</h6>
+                                <h2 class="text-right"><i class="fa fa-users f-right"></i><span>486</span></h2>
+                                <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card mb-3" style="width: 18rem;">
-                        <img src="https://storage.googleapis.com/a1aa/image/LcQarcQbDTrgC9ombylYUxfRlFPvYJcC8OsggZfJQm2AIKvTA.jpg" class="card-img-top" alt="Spineless yucca">
-                        <div class="card-body text-center"><h5>Spineless yucca</h5></div>
+                    
+                    <div class="col-md-4 col-xl-3">
+                        <div class="card bg-c-green order-card">
+                            <div class="card-block">
+                                <h6 class="m-b-20">Vehicles in Use</h6>
+                                <h2 class="text-right"><i class="fa fa-truck f-right"></i><span>486</span></h2>
+                                <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 col-xl-3">
+                        <div class="card bg-c-green order-card">
+                            <div class="card-block">
+                                <h6 class="m-b-20">Equipment Deployed</h6>
+                                <h2 class="text-right"><i class="fa fa-wrench f-right"></i><span>486</span></h2>
+                                <p class="m-b-0">Completed Orders<span class="f-right">351</span></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -90,8 +105,8 @@
         <section id="cropPage" class="col-md-9 col-lg-10">
             <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
                 <div>
-                    <h1>Crop Servise</h1>
-                    <p>Green Shadow (pvt) Ltd.</p>
+                    <h1>Crop Service</h1>
+                    <p>Green Shadow (Pvt) Ltd.</p>
                 </div>
                 <div class="d-flex align-items-center">
                     <input class="form-control me-2" type="text" placeholder="Search Crop here">
@@ -101,13 +116,13 @@
 
             <!-- Add Crop Button -->
             <div class="mb-3">
-                <button class="btn btn-success">Add Crop</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCropModal">Add Crop</button>
             </div>
 
             <!-- Crop Table -->
             <div class="table-responsive">
-                <table class="table .table-borderless">
-                    <thead class="">
+                <table class="table table-borderless">
+                    <thead>
                         <tr>
                             <th>Crop Code</th>
                             <th>Crop Common Name</th>
@@ -135,18 +150,121 @@
                                 <button class="btn btn-danger btn-sm">Delete</button>
                             </td>
                         </tr>
-                        <!-- Add more rows as needed -->
                     </tbody>
                 </table>
             </div>
+        </section>
+
+<!-- Add Crop Modal -->
+        <div class="modal fade" id="addCropModal" tabindex="-1" aria-labelledby="addCropModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCropModalLabel">Add New Crop</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="addCropForm">
+                            <div class="mb-3">
+                                <label for="cropCode" class="form-label">Crop Code</label>
+                                <input type="text" class="form-control" id="cropCode" placeholder="Enter crop code">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropCommonName" class="form-label">Crop Common Name</label>
+                                <input type="text" class="form-control" id="cropCommonName" placeholder="Enter crop common name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropScientificName" class="form-label">Crop Scientific Name</label>
+                                <input type="text" class="form-control" id="cropScientificName" placeholder="Enter crop scientific name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropImage" class="form-label">Crop Image</label>
+                                <input type="file" class="form-control" id="cropImage">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropCategory" class="form-label">Category</label>
+                                <input type="text" class="form-control" id="cropCategory" placeholder="Enter crop category">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropSeason" class="form-label">Crop Season</label>
+                                <input type="text" class="form-control" id="cropSeason" placeholder="Enter crop season">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fieldDetails" class="form-label">Field</label>
+                                <input type="text" class="form-control" id="fieldDetails" placeholder="Enter field details">
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" id="saveCrop">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<!-- Staff Section -->
+        <section id="StaffPage" class="col-md-9 col-lg-10">
+            <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
+                <div>
+                    <h1>Staff Servise</h1>
+                    <p>Hello Dilshan, welcome back!</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Search here">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        
+            <div class="mb-3">
+                <button class="btn btn-success">Add Entry</button>
+            </div>
+        
+            <!-- Table -->
+            <table class="table .table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Designation</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">DOB</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Contact No.</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">More Details</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John</td>
+                        <td>Manager</td>
+                        <td>Male</td>
+                        <td>1985-07-24</td>
+                        <td>123 Main St</td>
+                        <td>(555) 123-4567</td>
+                        <td>john.doe@example.com</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm">View More</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
 
 <!-- Vehicle Section -->
         <section id="vehiclePage" class="col-md-9 col-lg-10">
             <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
                 <div>
-                    <h1>Vehicle Servise</h1>
-                    <p>Green Shadow (pvt) Ltd.</p>
+                    <h1>Vehicle Service</h1>
+                    <p>Green Shadow (Pvt) Ltd.</p>
                 </div>
                 <div class="d-flex align-items-center">
                     <input class="form-control me-2" type="text" placeholder="Search vehicle here">
@@ -156,13 +274,14 @@
 
             <!-- Add Vehicle Button -->
             <div class="mb-3">
-                <button class="btn btn-success">Add Vehicle</button>
+                <!-- Button to Open Modal -->
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addVehicleModal">Add Vehicle</button>
             </div>
 
             <!-- Vehicle Table -->
             <div class="table-responsive">
-                <table class="table .table-borderless">
-                    <thead class="">
+                <table class="table table-borderless">
+                    <thead>
                         <tr>
                             <th>Vehicle code</th>
                             <th>License plate number</th>
@@ -180,10 +299,10 @@
                             <td>V001</td>
                             <td>DF 5674</td>
                             <td>Lorry</td>
-                            <td>Deisel</td>
+                            <td>Diesel</td>
                             <td>Available</td>
                             <td>Member</td>
-                            <td>N/A 1</td>
+                            <td>N/A</td>
                             <td>
                                 <button class="btn btn-danger btn-sm">Delete</button>
                             </td>
@@ -193,11 +312,184 @@
             </div>
         </section>
 
+<!-- Add Vehicle Modal -->
+        <div class="modal fade" id="addVehicleModal" tabindex="-1" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addVehicleModalLabel">Add New Vehicle</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="addVehicleForm">
+                            <div class="mb-3">
+                                <label for="vehicleCode" class="form-label">Vehicle Code</label>
+                                <input type="text" class="form-control" id="vehicleCode" placeholder="Enter vehicle code">
+                            </div>
+                            <div class="mb-3">
+                                <label for="licensePlate" class="form-label">License Plate Number</label>
+                                <input type="text" class="form-control" id="licensePlate" placeholder="Enter license plate number">
+                            </div>
+                            <div class="mb-3">
+                                <label for="vehicleCategory" class="form-label">Vehicle Category</label>
+                                <input type="text" class="form-control" id="vehicleCategory" placeholder="Enter vehicle category">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fuelType" class="form-label">Fuel Type</label>
+                                <input type="text" class="form-control" id="fuelType" placeholder="Enter fuel type">
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <input type="text" class="form-control" id="status" placeholder="Enter status">
+                            </div>
+                            <div class="mb-3">
+                                <label for="staffMember" class="form-label">Allocated Staff Member</label>
+                                <input type="text" class="form-control" id="staffMember" placeholder="Enter staff member details">
+                            </div>
+                            <div class="mb-3">
+                                <label for="remarks" class="form-label">Remarks</label>
+                                <textarea class="form-control" id="remarks" placeholder="Enter remarks"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveVehicle">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+<!-- Equipment section -->
+        <section id="EquipmentPage" class="col-md-9 col-lg-10">
+            <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
+                <div>
+                    <h1>Equipment Service</h1>
+                    <p>Hello Dilshan, welcome back!</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Search Equipment here">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <!-- Add Equipment Button -->
+            <div class="mb-3">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEquipmentModal">Add Equipment</button>
+            </div>
+
+            <!-- Equipment Table -->
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">Equipment Id</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Assigned Staff Details</th>
+                        <th scope="col">Assigned Field Details</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>001</td>
+                        <td>Tractor</td>
+                        <td>Heavy Machinery</td>
+                        <td>Operational</td>
+                        <td>John Doe</td>
+                        <td>Field A</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm">View More</button>
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>002</td>
+                        <td>Plow</td>
+                        <td>Tool</td>
+                        <td>In Maintenance</td>
+                        <td>Jane Smith</td>
+                        <td>Field B</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm">View More</button>
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>003</td>
+                        <td>Irrigation Pump</td>
+                        <td>Utility</td>
+                        <td>Operational</td>
+                        <td>Robert Brown</td>
+                        <td>Field C</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm">View More</button>
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+<!-- Add Equipment Modal -->
+        <div class="modal fade" id="addEquipmentModal" tabindex="-1" aria-labelledby="addEquipmentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addEquipmentModalLabel">Add New Equipment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <!-- Modal Body with Scroll -->
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="addEquipmentForm">
+                            <div class="mb-3">
+                                <label for="equipmentId" class="form-label">Equipment ID</label>
+                                <input type="text" class="form-control" id="equipmentId" placeholder="Enter equipment ID">
+                            </div>
+                            <div class="mb-3">
+                                <label for="equipmentName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="equipmentName" placeholder="Enter equipment name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="equipmentType" class="form-label">Type</label>
+                                <input type="text" class="form-control" id="equipmentType" placeholder="Enter equipment type">
+                            </div>
+                            <div class="mb-3">
+                                <label for="equipmentStatus" class="form-label">Status</label>
+                                <input type="text" class="form-control" id="equipmentStatus" placeholder="Enter equipment status">
+                            </div>
+                            <div class="mb-3">
+                                <label for="staffDetails" class="form-label">Assigned Staff Details</label>
+                                <input type="text" class="form-control" id="staffDetails" placeholder="Enter staff details">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fieldDetails" class="form-label">Assigned Field Details</label>
+                                <input type="text" class="form-control" id="fieldDetails" placeholder="Enter field details">
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveEquipment">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 </div>
 <script src="assets/js/jquery-3.6.1.min.js"></script>
 <script src="assets/js/SPANavBar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-QVnVybkjBYsqNynDJvFn+L4c7mPlGAtfpO8XirIjUw3rxG1VQ+V7PF1yFYuo+pK4" crossorigin="anonymous"></script>
 </body>
 </html>

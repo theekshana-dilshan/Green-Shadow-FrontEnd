@@ -1,0 +1,79 @@
+/* Background */
+.background-container {
+    background-image: url('/assets/images/photo-1684498887952-c7117fdffce3.jpeg'); /* Replace with your background image path */
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Login Box */
+.login-container {
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-box {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Close button styling */
+.login-box .close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #fff;
+    font-size: 24px;
+}
+
+/* Form Elements */
+.login-box h2 {
+    color: #fff;
+}
+
+.login-box .form-check-label {
+    color: #ccc;
+}
+
+.login-box .text-secondary, .login-box .text-primary {
+    color: #ccc !important;
+}
+
+.login-box .btn-dark {
+    background-color: #333;
+    color: #fff;
+    border: none;
+}
+
+.login-box .btn-dark:hover {
+    background-color: #555;
+}
+
+/* Custom Input Styling */
+.custom-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding-left: 40px;
+    border-radius: 5px;
+}
+
+.custom-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+}
