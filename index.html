@@ -27,11 +27,6 @@
                 <h5 class="text-muted">Settings</h5>
                 <a id="btnMyProfile" class="nav-link" href="#"><i class="fas fa-user me-2"></i>My Profile</a>
             </nav>
-            <!-- <div class="help-center mt-auto p-3">
-                <p>Help Center</p>
-                <p>Having trouble with plants? Contact us for more questions.</p>
-                <a class="btn btn-success btn-sm" href="#">Go to Help Center</a>
-            </div> -->
         </section>
 
 <!-- DashBoard Section -->
@@ -101,6 +96,164 @@
             </div>
         </section>
 
+<!-- Field section -->
+        <section id="fieldPage" class="col-md-9 col-lg-10">
+            <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
+                <div>
+                    <h1>Field Service</h1>
+                    <p>Green Shadow (Pvt) Ltd.</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Search Field here">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFieldModal">Add Field</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th>Field Code</th>
+                            <th>Field Name</th>
+                            <th>Field Location</th>
+                            <th>Size of the Field</th>
+                            <th>View</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>F001</td>
+                            <td>Wheat</td>
+                            <td>Location</td>
+                            <td>Size</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewFieldModal"
+                                    onclick="populateFieldDetails('F001', 'Wheat', 'Location', '10 Acres', 'Corn, Rice', 'John Doe', 'field1.jpg', 'field2.jpg')">View More</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+<!-- View/Update Field Modal -->
+        <div class="modal fade" id="viewFieldModal" tabindex="-1" aria-labelledby="viewFieldModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewFieldModalLabel">Field Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="updateFieldForm">
+                            <div class="mb-3">
+                                <label for="editFieldCode" class="form-label">Field Code</label>
+                                <input type="text" class="form-control" id="editFieldCode" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldName" class="form-label">Field Name</label>
+                                <input type="text" class="form-control" id="editFieldName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldLocation" class="form-label">Field Location (Coordinate)</label>
+                                <input type="text" class="form-control" id="editFieldLocation">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldSize" class="form-label">Extent Size of the Field</label>
+                                <input type="text" class="form-control" id="editFieldSize">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldCrops" class="form-label">Crops</label>
+                                <input type="text" class="form-control" id="editFieldCrops">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldStaff" class="form-label">Staff</label>
+                                <input type="text" class="form-control" id="editFieldStaff">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldImage1" class="form-label">Field Image 1</label>
+                                <input type="file" class="form-control" id="editFieldImage1">
+                                <img id="currentFieldImage1" src="" alt="Current Field Image 1" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldImage2" class="form-label">Field Image 2</label>
+                                <input type="file" class="form-control" id="editFieldImage2">
+                                <img id="currentFieldImage2" src="" alt="Current Field Image 2" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="saveFieldDetails()">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+<!-- Add Field Modal -->
+        <div class="modal fade" id="addFieldModal" tabindex="-1" aria-labelledby="addFieldModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addFieldModalLabel">Add New Crop</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="addFieldForm">
+                            <div class="mb-3">
+                                <label for="fieldCode" class="form-label">Field Code</label>
+                                <input type="text" class="form-control" id="fieldCode" placeholder="Enter field code">
+                            </div>
+                            <div class="mb-3">
+                                <label for="fieldName" class="form-label">Field Name</label>
+                                <input type="text" class="form-control" id="fieldName" placeholder="Enter field name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="sizeOfTheField" class="form-label">Extent size of the Field</label>
+                                <input type="text" class="form-control" id="sizeOfTheField" placeholder="Enter Size of the field">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropDetails" class="form-label">Crops</label>
+                                <input type="text" class="form-control" id="cropDetails" placeholder="Enter crop detail">
+                            </div>
+                            <div class="mb-3">
+                                <label for="staffDetails" class="form-label">Staff</label>
+                                <input type="text" class="form-control" id="staffDetails" placeholder="Enter staff details">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropImage" class="form-label">Crop Image 1</label>
+                                <input type="file" class="form-control" id="cropImage">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cropImage2" class="form-label">Crop Image 2</label>
+                                <input type="file" class="form-control" id="cropImage2">
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" id="saveCrop">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <!-- Crop section -->
         <section id="cropPage" class="col-md-9 col-lg-10">
             <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
@@ -114,12 +267,10 @@
                 </div>
             </div>
 
-            <!-- Add Crop Button -->
             <div class="mb-3">
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCropModal">Add Crop</button>
             </div>
 
-            <!-- Crop Table -->
             <div class="table-responsive">
                 <table class="table table-borderless">
                     <thead>
@@ -135,7 +286,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Sample data row -->
                         <tr>
                             <td>C001</td>
                             <td>Wheat</td>
@@ -144,7 +294,8 @@
                             <td>Winter</td>
                             <td>Field 1</td>
                             <td>
-                                <button class="btn btn-info btn-sm">View More</button>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewCropModal"
+                                    onclick="populateCropDetails('C001', 'Wheat', 'Triticum aestivum', 'wheat.jpg', 'Cereal', 'Winter', 'Field 1')">View More</button>
                             </td>
                             <td>
                                 <button class="btn btn-danger btn-sm">Delete</button>
@@ -154,6 +305,59 @@
                 </table>
             </div>
         </section>
+
+<!-- View/Update Crop Modal -->
+        <div class="modal fade" id="viewCropModal" tabindex="-1" aria-labelledby="viewCropModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewCropModalLabel">Crop Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <!-- Modal Body -->
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="updateCropForm">
+                            <div class="mb-3">
+                                <label for="editCropCode" class="form-label">Crop Code</label>
+                                <input type="text" class="form-control" id="editCropCode" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCropCommonName" class="form-label">Crop Common Name</label>
+                                <input type="text" class="form-control" id="editCropCommonName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCropScientificName" class="form-label">Crop Scientific Name</label>
+                                <input type="text" class="form-control" id="editCropScientificName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCropImage" class="form-label">Crop Image</label>
+                                <input type="file" class="form-control" id="editCropImage">
+                                <img id="currentCropImage" src="" alt="Current Crop Image" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCropCategory" class="form-label">Category</label>
+                                <input type="text" class="form-control" id="editCropCategory">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCropSeason" class="form-label">Crop Season</label>
+                                <input type="text" class="form-control" id="editCropSeason">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCropField" class="form-label">Field</label>
+                                <input type="text" class="form-control" id="editCropField">
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="saveCropDetails()">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 <!-- Add Crop Modal -->
         <div class="modal fade" id="addCropModal" tabindex="-1" aria-labelledby="addCropModalLabel" aria-hidden="true">
@@ -224,7 +428,6 @@
                 <button class="btn btn-success">Add Entry</button>
             </div>
         
-            <!-- Table -->
             <table class="table .table-borderless">
                 <thead>
                     <tr>
@@ -249,7 +452,7 @@
                         <td>(555) 123-4567</td>
                         <td>john.doe@example.com</td>
                         <td>
-                            <button class="btn btn-primary btn-sm">View More</button>
+                            <button class="btn btn-success btn-sm">View More</button>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm">Delete</button>
@@ -272,13 +475,10 @@
                 </div>
             </div>
 
-            <!-- Add Vehicle Button -->
             <div class="mb-3">
-                <!-- Button to Open Modal -->
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addVehicleModal">Add Vehicle</button>
             </div>
 
-            <!-- Vehicle Table -->
             <div class="table-responsive">
                 <table class="table table-borderless">
                     <thead>
@@ -294,7 +494,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Sample data row -->
                         <tr>
                             <td>V001</td>
                             <td>DF 5674</td>
@@ -357,7 +556,7 @@
                     
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="saveVehicle">Save</button>
+                        <button type="button" class="btn btn-success" id="saveVehicle">Save</button>
                     </div>
                 </div>
             </div>
@@ -378,12 +577,10 @@
                 </div>
             </div>
 
-            <!-- Add Equipment Button -->
             <div class="mb-3">
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEquipmentModal">Add Equipment</button>
             </div>
 
-            <!-- Equipment Table -->
             <table class="table table-borderless">
                 <thead>
                     <tr>
@@ -393,7 +590,8 @@
                         <th scope="col">Status</th>
                         <th scope="col">Assigned Staff Details</th>
                         <th scope="col">Assigned Field Details</th>
-                        <th scope="col">Actions</th>
+                        <th scope="col">More Details</th>
+                        <th scope="col">Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -405,7 +603,9 @@
                         <td>John Doe</td>
                         <td>Field A</td>
                         <td>
-                            <button class="btn btn-primary btn-sm">View More</button>
+                            <button class="btn btn-success btn-sm">View More</button>
+                        </td>
+                        <td>
                             <button class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>
@@ -417,7 +617,9 @@
                         <td>Jane Smith</td>
                         <td>Field B</td>
                         <td>
-                            <button class="btn btn-primary btn-sm">View More</button>
+                            <button class="btn btn-success btn-sm">View More</button>
+                        </td>
+                        <td>
                             <button class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>
@@ -429,7 +631,9 @@
                         <td>Robert Brown</td>
                         <td>Field C</td>
                         <td>
-                            <button class="btn btn-primary btn-sm">View More</button>
+                            <button class="btn btn-success btn-sm">View More</button>
+                        </td>
+                        <td>
                             <button class="btn btn-danger btn-sm">Delete</button>
                         </td>
                     </tr>
@@ -441,12 +645,12 @@
         <div class="modal fade" id="addEquipmentModal" tabindex="-1" aria-labelledby="addEquipmentModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <!-- Modal Header -->
+                    
                     <div class="modal-header">
                         <h5 class="modal-title" id="addEquipmentModalLabel">Add New Equipment</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <!-- Modal Body with Scroll -->
+                    
                     <div class="modal-body overflow-auto" style="max-height: 500px;">
                         <form id="addEquipmentForm">
                             <div class="mb-3">
@@ -475,10 +679,10 @@
                             </div>
                         </form>
                     </div>
-                    <!-- Modal Footer -->
+                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="saveEquipment">Save</button>
+                        <button type="button" class="btn btn-success" id="saveEquipment">Save</button>
                     </div>
                 </div>
             </div>
@@ -489,6 +693,7 @@
 </div>
 <script src="assets/js/jquery-3.6.1.min.js"></script>
 <script src="assets/js/SPANavBar.js"></script>
+<script src="assets/js/populateModelDetails.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-QVnVybkjBYsqNynDJvFn+L4c7mPlGAtfpO8XirIjUw3rxG1VQ+V7PF1yFYuo+pK4" crossorigin="anonymous"></script>
 </body>
