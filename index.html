@@ -44,11 +44,9 @@
             </div>
 
             <!-- Banner -->
-            <div class="banner text-center text-white mb-4 p-5">
+            <div class="banner text-center text-white mb-4">
                 <h2>Create and sell extraordinary products</h2>
                 <p>The world's first and largest handmade products marketplace</p>
-                <a class="btn btn-light me-2" href="#">Explore More</a>
-                <a class="btn btn-outline-light" href="#">Top Sellers</a>
             </div>
         
             <div class="container" id="card-container">
@@ -425,7 +423,7 @@
             </div>
         
             <div class="mb-3">
-                <button class="btn btn-success">Add Entry</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStaffModal">Add Entry</button>
             </div>
         
             <table class="table .table-borderless">
@@ -452,8 +450,9 @@
                         <td>(555) 123-4567</td>
                         <td>john.doe@example.com</td>
                         <td>
-                            <button class="btn btn-success btn-sm">View More</button>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewStaffModal" onclick="populateStaffDetails('S001', 'John', 'Doe', 'Manager', 'Male', '2020-05-15', '1985-07-24', '123 Main St, Apt 4, Springfield, IL', '(555) 123-4567', 'john.doe@example.com', 'Admin', 'Field 1', 'Car')"> View More </button>
                         </td>
+                        
                         <td>
                             <button class="btn btn-danger btn-sm">Delete</button>
                         </td>
@@ -461,6 +460,157 @@
                 </tbody>
             </table>
         </section>
+
+<!-- View/Update Staff Modal -->
+        <div class="modal fade" id="viewStaffModal" tabindex="-1" aria-labelledby="viewStaffModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewStaffModalLabel">Staff Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="updateStaffForm">
+                            <div class="mb-3">
+                                <label for="editStaffId" class="form-label">Id</label>
+                                <input type="text" class="form-control" id="editStaffId" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFirstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="editFirstName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="editLastName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editDesignation" class="form-label">Designation</label>
+                                <input type="text" class="form-control" id="editDesignation">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editGender" class="form-label">Gender</label>
+                                <input type="text" class="form-control" id="editGender">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editJoinedDate" class="form-label">Joined Date</label>
+                                <input type="date" class="form-control" id="editJoinedDate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editDOB" class="form-label">DOB</label>
+                                <input type="date" class="form-control" id="editDOB">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAddress" class="form-label">Address</label>
+                                <textarea class="form-control" id="editAddress" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editContact" class="form-label">Contact No.</label>
+                                <input type="text" class="form-control" id="editContact">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editRole" class="form-label">Role</label>
+                                <input type="text" class="form-control" id="editRole">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editField" class="form-label">Field</label>
+                                <input type="text" class="form-control" id="editField">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editVehicle" class="form-label">Vehicle</label>
+                                <input type="text" class="form-control" id="editVehicle">
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="saveStaffDetails()">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Add Staff Modal -->
+        <div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addStaffModalLabel">Add New Staff</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="addStaffForm">
+                            <div class="mb-3">
+                                <label for="staffId" class="form-label">Id</label>
+                                <input type="text" class="form-control" id="staffId" placeholder="Enter staff id">
+                            </div>
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" placeholder="Enter first name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" placeholder="Enter last name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="designation" class="form-label">Designation</label>
+                                <input type="text" class="form-control" id="designation" placeholder="Enter designation">
+                            </div>
+                            <div class="mb-3">
+                                <label for="gender" class="form-label">Gender</label>
+                                <input type="text" class="form-control" id="gender" placeholder="Enter gender">
+                            </div>
+                            <div class="mb-3">
+                                <label for="joinedDate" class="form-label">Joined Date</label>
+                                <input type="date" class="form-control" id="joinedDate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="dob" class="form-label">DOB</label>
+                                <input type="date" class="form-control" id="dob">
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" rows="3" placeholder="Enter address"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="contact" class="form-label">Contact No.</label>
+                                <input type="text" class="form-control" id="contact" placeholder="Enter contact no.">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" placeholder="Enter email">
+                            </div>
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                <input type="text" class="form-control" id="role" placeholder="Enter role">
+                            </div>
+                            <div class="mb-3">
+                                <label for="field" class="form-label">Field</label>
+                                <input type="text" class="form-control" id="field" placeholder="Enter field">
+                            </div>
+                            <div class="mb-3">
+                                <label for="vehicle" class="form-label">Vehicle</label>
+                                <input type="text" class="form-control" id="vehicle" placeholder="Enter vehicle">
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="saveNewStaff()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 <!-- Vehicle Section -->
         <section id="vehiclePage" class="col-md-9 col-lg-10">
@@ -631,7 +781,8 @@
                         <td>Robert Brown</td>
                         <td>Field C</td>
                         <td>
-                            <button class="btn btn-success btn-sm">View More</button>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewEquipmentModal"
+                                onclick="populateEquipmentDetails('V001', 'Irrigation Pump', 'Utility', 'Operational', 'Robert Brown', 'Field C')">View More</button>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm">Delete</button>
@@ -640,6 +791,54 @@
                 </tbody>
             </table>
         </section>
+
+<!-- View/Update Equipment Modal -->
+        <div class="modal fade" id="viewEquipmentModal" tabindex="-1" aria-labelledby="viewEquipmentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewEquipmentModalLabel">Equipment Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="updateEquipmentForm">
+                            <div class="mb-3">
+                                <label for="editEquipmentId" class="form-label">Equipment Id</label>
+                                <input type="text" class="form-control" id="editEquipmentId" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEquipmentName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="editEquipmentName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEquipmentType" class="form-label">Type</label>
+                                <input type="text" class="form-control" id="editEquipmentType">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEquipmentStatus" class="form-label">Status</label>
+                                <input type="text" class="form-control" id="editEquipmentStatus">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editStaffDetails" class="form-label">Assigned Staff Details</label>
+                                <input type="text" class="form-control" id="editStaffDetails">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFieldDetails" class="form-label">Assigned Field Details</label>
+                                <input type="text" class="form-control" id="editFieldDetails">
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="saveEquipmentDetails()">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 <!-- Add Equipment Modal -->
         <div class="modal fade" id="addEquipmentModal" tabindex="-1" aria-labelledby="addEquipmentModalLabel" aria-hidden="true">
