@@ -234,19 +234,19 @@
                                 <input type="text" class="form-control" id="staffDetails" placeholder="Enter staff details">
                             </div>
                             <div class="mb-3">
-                                <label for="cropImage" class="form-label">Crop Image 1</label>
-                                <input type="file" class="form-control" id="cropImage">
+                                <label for="fieldImage" class="form-label">Field Image 1</label>
+                                <input type="file" class="form-control" id="fieldImage">
                             </div>
                             <div class="mb-3">
-                                <label for="cropImage2" class="form-label">Crop Image 2</label>
-                                <input type="file" class="form-control" id="cropImage2">
+                                <label for="fieldImage2" class="form-label">Field Image 2</label>
+                                <input type="file" class="form-control" id="fieldImage2">
                             </div>
                         </form>
                     </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" id="saveCrop">Save</button>
+                        <button type="button" class="btn btn-success" id="saveField">Save</button>
                     </div>
                 </div>
             </div>
@@ -308,18 +308,18 @@
         <div class="modal fade" id="viewCropModal" tabindex="-1" aria-labelledby="viewCropModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
-                    <!-- Modal Header -->
+                    
                     <div class="modal-header">
                         <h5 class="modal-title" id="viewCropModalLabel">Crop Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <!-- Modal Body -->
+                    
                     <div class="modal-body overflow-auto" style="max-height: 500px;">
                         <form id="updateCropForm">
                             <div class="mb-3">
                                 <label for="editCropCode" class="form-label">Crop Code</label>
                                 <input type="text" class="form-control" id="editCropCode" readonly>
-                            </div>
+                            </div> 
                             <div class="mb-3">
                                 <label for="editCropCommonName" class="form-label">Crop Common Name</label>
                                 <input type="text" class="form-control" id="editCropCommonName">
@@ -330,9 +330,9 @@
                             </div>
                             <div class="mb-3">
                                 <label for="editCropImage" class="form-label">Crop Image</label>
-                                <input type="file" class="form-control" id="editCropImage">
+                                <input type="file" class="form-control" id="editCropImage" onchange="handleCropImageUpload(this, 'currentCropImage')">
                                 <img id="currentCropImage" src="" alt="Current Crop Image" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
-                            </div>
+                            </div>                            
                             <div class="mb-3">
                                 <label for="editCropCategory" class="form-label">Category</label>
                                 <input type="text" class="form-control" id="editCropCategory">
@@ -347,7 +347,7 @@
                             </div>
                         </form>
                     </div>
-                    <!-- Modal Footer -->
+                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-success" onclick="saveCropDetails()">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -383,8 +383,10 @@
                             </div>
                             <div class="mb-3">
                                 <label for="cropImage" class="form-label">Crop Image</label>
-                                <input type="file" class="form-control" id="cropImage">
+                                <input type="file" class="form-control" id="cropImage" onchange="handleCropImageUpload(this, 'cropImagePreview')">
+                                <img id="cropImagePreview" src="" alt="Crop Preview" class="img-fluid rounded mt-2" style="display:none; max-width: 100%; height: auto;">
                             </div>
+                            
                             <div class="mb-3">
                                 <label for="cropCategory" class="form-label">Category</label>
                                 <input type="text" class="form-control" id="cropCategory" placeholder="Enter crop category">
@@ -610,6 +612,160 @@
                 </div>
             </div>
         </div>
+
+<!-- Log Monitoring Section -->
+        <section id="logMonitoringPage" class="col-md-9 col-lg-10">
+            <div class="header d-flex justify-content-between align-items-center p-3 mb-4">
+                <div>
+                    <h1>Log Monitoring Service</h1>
+                    <p>Green Shadow (Pvt) Ltd.</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Search Log here">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLogModal">Add Log</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th>Log Code</th>
+                            <th>Log Date</th>
+                            <th>Log Details</th>
+                            <th>Field</th>
+                            <th>Crop</th>
+                            <th>Staff</th>
+                            <th>View</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>L001</td>
+                            <td>2024-11-25</td>
+                            <td>Observed unusual growth</td>
+                            <td>Field A</td>
+                            <td>Wheat</td>
+                            <td>John Doe</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewLogModal"
+                                    onclick="populateLogDetails('L001', '2024-11-25', 'Observed unusual growth', 'observed_image.jpg', 'Field A', 'Wheat', 'John Doe')">View More</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+<!-- View/Update Log Modal -->
+        <div class="modal fade" id="viewLogModal" tabindex="-1" aria-labelledby="viewLogModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewLogModalLabel">Log Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="updateLogForm">
+                            <div class="mb-3">
+                                <label for="editLogCode" class="form-label">Log Code</label>
+                                <input type="text" class="form-control" id="editLogCode" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLogDate" class="form-label">Log Date</label>
+                                <input type="date" class="form-control" id="editLogDate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLogDetails" class="form-label">Log Details / Observation</label>
+                                <textarea class="form-control" id="editLogDetails" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLogImage" class="form-label">Observed Image</label>
+                                <input type="file" class="form-control" id="editLogImage">
+                                <img id="currentLogImage" src="" alt="Current Log Image" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLogField" class="form-label">Field</label>
+                                <input type="text" class="form-control" id="editLogField">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLogCrop" class="form-label">Crop</label>
+                                <input type="text" class="form-control" id="editLogCrop">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLogStaff" class="form-label">Staff</label>
+                                <input type="text" class="form-control" id="editLogStaff">
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="saveLogDetails()">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<!-- Add Log Modal -->
+    <div class="modal fade" id="addLogModal" tabindex="-1" aria-labelledby="addLogModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addLogModalLabel">Add New Log</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body overflow-auto" style="max-height: 500px;">
+                    <form id="addLogForm">
+                        <div class="mb-3">
+                            <label for="logCode" class="form-label">Log Code</label>
+                            <input type="text" class="form-control" id="logCode" placeholder="Enter log code">
+                        </div>
+                        <div class="mb-3">
+                            <label for="logDate" class="form-label">Log Date</label>
+                            <input type="date" class="form-control" id="logDate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="logDetails" class="form-label">Log Details / Observation</label>
+                            <textarea class="form-control" id="logDetails" rows="3" placeholder="Enter log details"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="logImage" class="form-label">Observed Image</label>
+                            <input type="file" class="form-control" id="logImage">
+                        </div>
+                        <div class="mb-3">
+                            <label for="logField" class="form-label">Field</label>
+                            <input type="text" class="form-control" id="logField" placeholder="Enter field">
+                        </div>
+                        <div class="mb-3">
+                            <label for="logCrop" class="form-label">Crop</label>
+                            <input type="text" class="form-control" id="logCrop" placeholder="Enter crop">
+                        </div>
+                        <div class="mb-3">
+                            <label for="logStaff" class="form-label">Staff</label>
+                            <input type="text" class="form-control" id="logStaff" placeholder="Enter staff">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="saveLog">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 <!-- Vehicle Section -->
@@ -893,6 +1049,7 @@
 <script src="assets/js/jquery-3.6.1.min.js"></script>
 <script src="assets/js/SPANavBar.js"></script>
 <script src="assets/js/populateModelDetails.js"></script>
+<script src="controllers/StaffController.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-QVnVybkjBYsqNynDJvFn+L4c7mPlGAtfpO8XirIjUw3rxG1VQ+V7PF1yFYuo+pK4" crossorigin="anonymous"></script>
 </body>

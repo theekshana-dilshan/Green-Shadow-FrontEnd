@@ -40,3 +40,20 @@ function populateStaffDetails(id, firstName, lastName, designation, gender, join
     document.getElementById('editContact').value = contact;
     document.get
 }
+
+function populateLogDetails(logCode, logDate, logDetails, logImage, field, crop, staff) {
+    document.getElementById("editLogCode").value = logCode;
+    document.getElementById("editLogDate").value = logDate;
+    document.getElementById("editLogDetails").value = logDetails;
+    document.getElementById("editLogField").value = field;
+    document.getElementById("editLogCrop").value = crop;
+    document.getElementById("editLogStaff").value = staff;
+
+    const currentLogImage = document.getElementById("currentLogImage");
+    if (logImage) {
+        currentLogImage.src = logImage;
+        currentLogImage.style.display = "block";
+    } else {
+        currentLogImage.style.display = "none";
+    }
+}
