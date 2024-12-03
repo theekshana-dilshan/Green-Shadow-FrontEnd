@@ -89,3 +89,23 @@ body {
 .f-right {
     float: right;
 }
+
+.header .fa-user-circle {
+    color: #6c7d6f;
+    padding-left: 10px;
+}
+
+.header p {
+    margin: 0;
+    line-height: 1.2;
+}
+
+.header .fw-bold {
+    font-size: 1rem;
+    text-align: right;
+}
+
+.header .text-muted {
+    font-size: 0.9rem;
+    text-align: right;
+}

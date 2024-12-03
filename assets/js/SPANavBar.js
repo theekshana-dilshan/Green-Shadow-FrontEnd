@@ -4,6 +4,8 @@ $('#vehiclePage').css('display','none');
 $('#EquipmentPage').css('display','none');
 $('#StaffPage').css('display','none');
 $('#fieldPage').css('display','none');
+$('#logMonitoringPage').css('display','none');
+$('#addProfilePage').css('display','none');
 
 $('#btnDashBoard').addClass('active');
 
@@ -14,6 +16,8 @@ $('#btnDashBoard').click(function (){
     $('#EquipmentPage').css('display','none')
     $('#StaffPage').css('display','none');
     $('#fieldPage').css('display','none');
+    $('#logMonitoringPage').css('display','none');
+    $('#addProfilePage').css('display','none');
 
     $('.nav-link').removeClass('active');
     $('#btnDashBoard').addClass('active');
@@ -26,6 +30,8 @@ $('#btnField').click(function (){
     $('#EquipmentPage').css('display','none')
     $('#StaffPage').css('display','none');
     $('#fieldPage').css('display','block');
+    $('#logMonitoringPage').css('display','none');
+    $('#addProfilePage').css('display','none');
 
     $('.nav-link').removeClass('active');
     $('#btnField').addClass('active');
@@ -38,6 +44,8 @@ $('#btnCrop').click(function (){
     $('#EquipmentPage').css('display','none')
     $('#StaffPage').css('display','none');
     $('#fieldPage').css('display','none');
+    $('#logMonitoringPage').css('display','none');
+    $('#addProfilePage').css('display','none');
 
     $('.nav-link').removeClass('active');
     $('#btnCrop').addClass('active');
@@ -50,6 +58,8 @@ $('#btnStaff').click(function (){
     $('#EquipmentPage').css('display','none')
     $('#StaffPage').css('display','block');
     $('#fieldPage').css('display','none');
+    $('#logMonitoringPage').css('display','none');
+    $('#addProfilePage').css('display','none');
 
     $('.nav-link').removeClass('active');
     $('#btnStaff').addClass('active');
@@ -58,10 +68,12 @@ $('#btnStaff').click(function (){
 $('#btnLog').click(function (){
     $('#dashboardPage').css('display','none');
     $('#cropPage').css('display','none');
-    $('#vehiclePage').css('display','block');
+    $('#vehiclePage').css('display','none');
     $('#EquipmentPage').css('display','none')
     $('#StaffPage').css('display','none');
     $('#fieldPage').css('display','none');
+    $('#logMonitoringPage').css('display','block');
+    $('#addProfilePage').css('display','none');
 
     $('.nav-link').removeClass('active');
     $('#btnLog').addClass('active');
@@ -74,6 +86,8 @@ $('#btnVehicle').click(function (){
     $('#EquipmentPage').css('display','none')
     $('#StaffPage').css('display','none');
     $('#fieldPage').css('display','none');
+    $('#logMonitoringPage').css('display','none');
+    $('#addProfilePage').css('display','none');
 
     $('.nav-link').removeClass('active');
     $('#btnVehicle').addClass('active');
@@ -86,19 +100,23 @@ $('#btnEquipment').click(function (){
     $('#EquipmentPage').css('display','block');
     $('#StaffPage').css('display','none');
     $('#fieldPage').css('display','none');
+    $('#logMonitoringPage').css('display','none');
+    $('#addProfilePage').css('display','none');
 
     $('.nav-link').removeClass('active');
     $('#btnEquipment').addClass('active');
 });
 
-$('#btnMyProfile').click(function (){
+$('#btnAddProfile').click(function (){
     $('#dashboardPage').css('display','none');
     $('#cropPage').css('display','none');
-    $('#vehiclePage').css('display','block');
+    $('#vehiclePage').css('display','none');
     $('#EquipmentPage').css('display','none')
     $('#StaffPage').css('display','none');
     $('#fieldPage').css('display','none');
+    $('#logMonitoringPage').css('display','none');
+    $('#addProfilePage').css('display','block');
 
     $('.nav-link').removeClass('active');
-    $('#btnMyProfile').addClass('active');
+    $('#btnAddProfile').addClass('active');
 });
