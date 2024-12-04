@@ -16,7 +16,8 @@ body {
         
 .sidebar .nav-link:hover, .sidebar .nav-link.active { 
     background-color: #f1f1f1; 
-    color: #28a745; 
+    color: #28a745;
+    border-left: 2px solid #28a745; 
 }
         
 .help-center { background-color: #e0f7e0; 

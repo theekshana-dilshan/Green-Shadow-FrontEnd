@@ -182,20 +182,16 @@
                                 <input type="text" class="form-control" id="editFieldStaff">
                             </div>
                             <div class="mb-3">
-                                <label for="editFieldImage1" class="form-label">Field Image 1</label>
-                                <input type="file" class="form-control" id="editFieldImage1">
-                                <img id="currentFieldImage1" src="" alt="Current Field Image 1" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
-                            </div>
-                            <div class="mb-3">
-                                <label for="editFieldImage2" class="form-label">Field Image 2</label>
-                                <input type="file" class="form-control" id="editFieldImage2">
-                                <img id="currentFieldImage2" src="" alt="Current Field Image 2" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
+                                <label for="editFieldImage" class="form-label">Field Image</label>
+                                <div class="viewLblR" id="imageUpdateFieldView"></div>
+                                <input type="file" class="form-control" id="editFieldImage" accept="image/*">
+                                <img id="currentFieldImage1" src="" alt="Current Field Image" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
                             </div>
                         </form>
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" onclick="saveFieldDetails()">Update</button>
+                        <button type="button" class="btn btn-success" id="fieldUpdateBtn">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -237,12 +233,8 @@
                                 <input type="text" class="form-control" id="staffDetails" placeholder="Enter staff details">
                             </div>
                             <div class="mb-3">
-                                <label for="fieldImage" class="form-label">Field Image 1</label>
+                                <label for="fieldImage" class="form-label">Field Image</label>
                                 <input type="file" class="form-control" id="fieldImage">
-                            </div>
-                            <div class="mb-3">
-                                <label for="fieldImage2" class="form-label">Field Image 2</label>
-                                <input type="file" class="form-control" id="fieldImage2">
                             </div>
                         </form>
                     </div>
@@ -333,7 +325,9 @@
                             </div>
                             <div class="mb-3">
                                 <label for="editCropImage" class="form-label">Crop Image</label>
-                                <input type="file" class="form-control" id="editCropImage" onchange="handleCropImageUpload(this, 'currentCropImage')">
+                                <div class="viewLblR" id="imageUpdateView"></div>
+                                <button id="changeImage">Change Image</button>
+                                <input type="file" class="form-control" id="editCropImage" accept="image/*">
                                 <img id="currentCropImage" src="" alt="Current Crop Image" class="img-fluid rounded mt-2" style="max-width: 100%; height: auto;">
                             </div>                            
                             <div class="mb-3">
@@ -352,7 +346,7 @@
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" onclick="saveCropDetails()">Update</button>
+                        <button type="button" class="btn btn-success" id="cropUpdateBtn">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -534,7 +528,7 @@
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" onclick="saveStaffDetails()">Update</button>
+                        <button type="button" class="btn btn-success" id="btnUpdateStaff">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -610,7 +604,7 @@
                     
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick="saveNewStaff()">Save</button>
+                        <button type="button" class="btn btn-success" id="btnStaffSave">Save</button>
                     </div>
                 </div>
             </div>
@@ -713,7 +707,7 @@
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" onclick="saveLogDetails()">Update</button>
+                        <button type="button" class="btn btn-success" id="btnLogUpdate">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -799,6 +793,7 @@
                             <th>Status</th>
                             <th>Allocated staff member</th>
                             <th>Remarks</th>
+                            <th>Update</th>
                             <th>Delete</th>
                         </tr>
                     </thead>
@@ -812,6 +807,9 @@
                             <td>Member</td>
                             <td>N/A</td>
                             <td>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewVehicleModal" onclick="populateVehicleDetails('V001', 'DF 5674', 'Lorry', 'Diesel', 'Available', 'John Doe', 'New')"> View More </button>
+                            </td>
+                            <td>
                                 <button class="btn btn-danger btn-sm">Delete</button>
                             </td>
                         </tr>
@@ -819,6 +817,56 @@
                 </table>
             </div>
         </section>
+
+<!-- View/Update Vehicle Modal -->
+        <div class="modal fade" id="viewVehicleModal" tabindex="-1" aria-labelledby="viewVehicleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewVehicleModalLabel">Vehicle Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body overflow-auto" style="max-height: 500px;">
+                        <form id="updateVehicleForm">
+                            <div class="mb-3">
+                                <label for="editVehicleCode" class="form-label">Vehicle Code</label>
+                                <input type="text" class="form-control" id="editVehicleCode" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editLicensePlate" class="form-label">License Plate</label>
+                                <input type="text" class="form-control" id="editLicensePlate">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editVehicleCategory" class="form-label">Vehicle Category</label>
+                                <input type="text" class="form-control" id="editVehicleCategory">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFuelType" class="form-label">Fuel Type</label>
+                                <input type="text" class="form-control" id="editFuelType">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editVehicleStatus" class="form-label">Status</label>
+                                <input type="text" class="form-control" id="editVehicleStatus">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editStaffMember" class="form-label">Staff Member</label>
+                                <input type="text" class="form-control" id="editStaffMember">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editRemarks" class="form-label">Remarks</label>
+                                <textarea class="form-control" id="editRemarks"></textarea>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="updateVehicleBtn">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 <!-- Add Vehicle Modal -->
         <div class="modal fade" id="addVehicleModal" tabindex="-1" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
@@ -991,7 +1039,7 @@
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="saveEquipmentDetails()">Update</button>
+                        <button type="button" class="btn btn-primary" id="equUpdateBtn">Update</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>

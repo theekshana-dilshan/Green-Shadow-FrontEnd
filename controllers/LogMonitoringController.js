@@ -55,7 +55,7 @@ function loadLogTable() {
                         <td>${log.staff}</td>
                         <td>
                             <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewLogModal" 
-                                onclick="populateLogDetails('${log.logCode}', '${log.logDate}', '${log.logDetails}', '${log.image}', '${log.field}', '${log.crop}', '${log.staff}')">View More</button>
+                                onclick="viewLogDetails('${log.logCode}')">View More</button>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" onclick="deleteLog('${log.logCode}')">Delete</button>
@@ -68,76 +68,171 @@ function loadLogTable() {
     });
 }
 
-function populateLogDetails(code, date, details, image, field, crop, staff) {
-    $("#editLogCode").val(code);
-    $("#editLogDate").val(date);
-    $("#editLogDetails").val(details);
-    $("#editLogImage").val('');
-    $("#currentLogImage").attr("src", image || "");
-    $("#editLogField").val(field);
-    $("#editLogCrop").val(crop);
-    $("#editLogStaff").val(staff);
-}
+function viewLogDetails(logCode) {
+    $.ajax({
+        url: `http://localhost:8080/api/v1/log/${logCode}`,
+        method: "GET",
+        success: (log) => {
+            // Populate the modal fields with log data
+            $("#editLogCode").val(log.logCode);
+            $("#editLogDate").val(log.logDate);
+            $("#editLogDetails").val(log.logDetails);
+            $("#editLogField").val(log.field);
+            $("#editLogCrop").val(log.crop);
+            $("#editLogStaff").val(log.staff);
 
-$("#saveLog").click(async () => {
-    try {
-        const imageData = await extractImageData($("#logImage")[0]);
+            // Set the image source if available
+            if (log.logImage) {
+                $("#currentLogImage").attr("src", `data:image/png;base64,${log.logImage}`);
+            } else {
+                $("#currentLogImage").attr("src", "");
+            }
 
-        const newLog = {
-            logCode: $("#logCode").val(),
-            logDate: $("#logDate").val(),
-            logDetails: $("#logDetails").val(),
-            image: imageData,
-            field: $("#logField").val(),
-            crop: $("#logCrop").val(),
-            staff: $("#logStaff").val(),
-        };
-
-        $.ajax({
-            url: "http://localhost:8080/api/v1/log",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(newLog),
-            success: () => {
-                alert("Log saved successfully!");
-                $("#addLogModal").modal("hide");
-                loadLogTable();
-            },
-            error: (xhr) => console.error("Failed to save log:", xhr.status),
-        });
-    } catch (error) {
-        console.error("Image processing error:", error);
-    }
-});
-
-function saveLogDetails() {
-    extractImageData($("#editLogImage")[0]).then((imageData) => {
-        const updatedLog = {
-            logCode: $("#editLogCode").val(),
-            logDate: $("#editLogDate").val(),
-            logDetails: $("#editLogDetails").val(),
-            image: imageData,
-            field: $("#editLogField").val(),
-            crop: $("#editLogCrop").val(),
-            staff: $("#editLogStaff").val(),
-        };
-
-        $.ajax({
-            url: `http://localhost:8080/api/v1/log/${updatedLog.logCode}`,
-            method: "PATCH",
-            contentType: "application/json",
-            data: JSON.stringify(updatedLog),
-            success: () => {
-                alert("Log updated successfully!");
-                $("#viewLogModal").modal("hide");
-                loadLogTable();
-            },
-            error: (xhr) => console.error("Failed to update log:", xhr.status),
-        });
-    }).catch((error) => {
-        console.error("Image processing error:", error);
+            // Open the modal
+            $("#viewLogModal").modal("show");
+        },
+        error: (xhr) => {
+            console.error("Failed to fetch log details:", xhr.status);
+            alert("Unable to fetch log details. Please try again.");
+        },
     });
 }
+
+function deleteLog(logCode) {
+    if (confirm(`Are you sure you want to delete the log with code: ${logCode}?`)) {
+        $.ajax({
+            url: `http://localhost:8080/api/v1/log/${logCode}`,
+            method: "DELETE",
+            success: () => {
+                alert(`Log with code ${logCode} has been deleted.`);
+                loadLogTable(); // Reload the table to reflect changes
+            },
+            error: (xhr) => {
+                console.error("Failed to delete log:", xhr.status);
+                alert("Unable to delete the log. Please try again.");
+            },
+        });
+    }
+}
+
+
+$("#saveLog").on("click", function () {
+    // Get values from input fields
+    var logCode = $("#logCode").val();
+    var logDate = $("#logDate").val();
+    var logDetails = $("#logDetails").val();
+    var logField = $("#logField").val();
+    var logCrop = $("#logCrop").val();
+    var logStaff = $("#logStaff").val();
+
+    // Collect file input
+    var logImage = $("#logImage")[0].files[0];
+
+    // Validate required inputs
+    if (!logCode || !logDate || !logDetails || !logField || !logCrop || !logStaff) {
+        alert("Please fill out all required fields.");
+        return;
+    }
+
+    if (!logImage) {
+        alert("Please upload an observation image.");
+        return;
+    }
+
+    // Create a FormData object for file upload
+    var formData = new FormData();
+    formData.append("logCode", logCode);
+    formData.append("date", logDate);
+    formData.append("observation", logDetails);
+    formData.append("observationImage", logImage);
+    formData.append("fieldCode", logField); // Ensure this matches your backend parameter
+    formData.append("cropCode", logCrop); // Ensure this matches your backend parameter
+    formData.append("staffId", logStaff);
+
+    // Send AJAX POST request to the backend
+    $.ajax({
+        url: "http://localhost:5050/green/api/v1/mlog", // Backend endpoint
+        type: "POST",
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: (response) => {
+            console.log("MonitorLog added successfully:", response);
+            alert("MonitorLog added successfully!");
+            clearLogFormFields();
+            loadLogTable(); // Reload table to reflect the new entry
+            $("#addLogModal").modal("hide"); // Close the modal
+        },
+        error: (xhr, status, error) => {
+            console.error("Error adding MonitorLog:", xhr.responseText || error);
+            if (xhr.responseText) {
+                alert("Failed to add MonitorLog: " + xhr.responseText);
+            } else {
+                alert("Failed to add MonitorLog. Please try again.");
+            }
+        },
+    });
+});
+
+document.getElementById("btnLogUpdate").addEventListener("click", function () {
+    // Gather form values
+    const logCode = $("#editLogCode").val();
+    const logDate = $("#editLogDate").val();
+    const logDetails = $("#editLogDetails").val();
+    const logField = $("#editLogField").val();
+    const logCrop = $("#editLogCrop").val();
+    const logStaff = $("#editLogStaff").val();
+    const logImage = $("#editLogImage")[0].files[0];
+
+    // Validate required fields
+    if (!logCode || !logDate || !logDetails || !logField || !logCrop || !logStaff) {
+        alert("All fields are required!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("logCode", logCode);
+    formData.append("date", logDate);
+    formData.append("observation", logDetails);
+    formData.append("fieldCode", logField);
+    formData.append("cropCode", logCrop);
+    formData.append("staffId", logStaff);
+
+    if (logImage) {
+        formData.append("observationImage", logImage);
+    }
+
+    // Send AJAX PUT request
+    $.ajax({
+        url: `http://localhost:5050/green/api/v1/mlog/${logCode}`,
+        type: "PUT",
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: function () {
+            alert("Log details updated successfully!");
+            $("#viewLogModal").modal("hide"); // Hide modal on success
+        },
+        error: function (xhr) {
+            console.error("Error:", xhr.responseText || xhr.statusText);
+            alert(`Failed to update log details. Error: ${xhr.responseText || xhr.statusText}`);
+        },
+    });
+});
+
+
+// Function to clear input fields
+function clearLogFormFields() {
+    $("#logCode").val("");
+    $("#logDate").val("");
+    $("#logDetails").val("");
+    $("#logField").val("");
+    $("#logCrop").val("");
+    $("#logStaff").val("");
+    $("#logImage").val("");
+}
+
+
 
 function deleteLog(code) {
     if (confirm("Are you sure you want to delete this log?")) {
@@ -152,6 +247,54 @@ function deleteLog(code) {
         });
     }
 }
+
+function LogIdGenerate() {
+    $.ajax({
+        url: "http://localhost:5050/green/api/v1/mlog", // API endpoint to fetch logs
+        type: "GET",
+        success: function (response) {
+            try {
+                // Validate response as an array
+                if (Array.isArray(response) && response.length > 0) {
+                    // Sort by logCode in ascending order
+                    response.sort((a, b) => a.logCode.localeCompare(b.logCode));
+
+                    // Get the last log from the sorted array
+                    const lastLog = response[response.length - 1];
+
+                    // Check if logCode exists and follows the expected format
+                    if (lastLog && lastLog.logCode) {
+                        const lastLogCode = lastLog.logCode;
+
+                        // Split the logCode by '-' and extract the numeric part
+                        const logParts = lastLogCode.split('-');
+                        if (logParts.length === 2 && !isNaN(logParts[1])) {
+                            const lastNumber = parseInt(logParts[1], 10);
+
+                            // Generate the next ID
+                            const nextId = `LOG-${String(lastNumber + 1).padStart(4, '0')}`;
+                            $("#logCode").val(nextId);
+                            return; // Successfully generated ID
+                        }
+                    }
+                }
+
+                // If response is empty or logCode is invalid, set default ID
+                $("#logCode").val("LOG-0001");
+            } catch (error) {
+                console.error("Error processing response:", error);
+                $("#logCode").val("LOG-0001"); // Fallback to default ID
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching last log ID:", error);
+            alert("Unable to fetch the last log ID. Using default ID.");
+            $("#logCode").val("LOG-0001"); // Fallback to default ID
+        }
+    });
+}
+
+LogIdGenerate();
 
 $(document).ready(() => {
     loadLogTable();
