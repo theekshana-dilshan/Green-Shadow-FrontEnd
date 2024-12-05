@@ -39,9 +39,19 @@ function setError(field, error) {
 function loadStaffTable() {
     $("#tblStaff > tbody > tr").remove();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/staff",
         method: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (staffList) => {
             staffList.forEach((staff) => {
                 let row = `
@@ -69,10 +79,19 @@ function loadStaffTable() {
 }
 
 function viewStaffDetails(staffId) {
-    // Fetch staff details by staffId
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/staff/${staffId}`,
         method: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (staff) => {
             // Populate modal with staff details
             $("#editStaffId").val(staff.staffId);
@@ -98,10 +117,19 @@ function viewStaffDetails(staffId) {
 function deleteStaff(staffId) {
     // Confirm deletion
     if (confirm("Are you sure you want to delete this staff member?")) {
-        // Make AJAX request to delete the staff
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
         $.ajax({
             url: `http://localhost:8080/api/v1/staff/api/v1/staff/${staffId}`,
             method: "DELETE",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
             success: () => {
                 alert("Staff deleted successfully!");
                 loadStaffTable();
@@ -115,11 +143,12 @@ function deleteStaff(staffId) {
 
 $("#btnStaffSave").on('click', function () {
     // Get values from input fields in the 'Add Staff' modal
-    const code = $("#staffId").val();
+    const id = $("#staffId").val();
     const firstName = $("#firstName").val();
     const lastName = $("#lastName").val();
     const designation = $("#designation").val();
     const gender = $("#gender").val();
+    const joinedDate = $("#joinedDate").val();
     const dob = $("#dob").val(); // Expecting `yyyy-MM-dd` input format
     const address = $("#address").val();
     const contact = $("#contact").val();
@@ -128,34 +157,41 @@ $("#btnStaffSave").on('click', function () {
     const field = $("#field").val();
     const vehicle = $("#vehicle").val();
 
-    // Validate required fields
     if (!code || !firstName || !lastName || !designation || !gender || !dob || !address || !contact || !email || !role) {
         alert("All fields are required!");
         return;
     }
 
-    // Create JSON object for the staff data
     const staffData = {
-        id: code,
+        id: id,
         firstName: firstName,
         lastName: lastName,
         designation: designation,
         gender: gender,
-        dob: dob, // Ensure format is `yyyy-MM-dd`
+        joinedDate: joinedDate,
+        dob: dob,
         address: address,
         contact: contact,
         email: email,
         role: role,
-        fieldCodes: field ? field.split(",") : [], // Split multiple fields into an array if needed
+        fieldCodes: field ? field.split(",") : [], 
         vehicle: vehicle
     };
 
-    // Send AJAX POST request to the backend
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
-        url: "http://localhost:8080/api/v1/staff", // Backend endpoint
+        url: "http://localhost:8080/api/v1/staff",
         type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(staffData), // Convert staffData object to JSON string
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
+        data: JSON.stringify(staffData), 
         success: (response) => {
             console.log("Staff added successfully:", response);
             alert("Staff added successfully!");
@@ -191,9 +227,19 @@ function clearFields() {
 }
 
 function setfieldId() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/field", // API endpoint to fetch fields
         type: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: function (response) {
             if (Array.isArray(response)) {
                 // Clear existing options
@@ -233,20 +279,6 @@ function setfieldId() {
 
 setfieldId();
 
-function deleteStaff(id) {
-    if (confirm("Are you sure you want to delete this staff?")) {
-        $.ajax({
-            url: `http://localhost:8080/api/v1/staff/${id}`,
-            method: "DELETE",
-            success: () => {
-                alert("Staff deleted successfully!");
-                loadStaffTable();
-            },
-            error: (xhr) => console.error("Failed to delete staff:", xhr.status),
-        });
-    }
-}
-
 document.getElementById("btnUpdateStaff").addEventListener("click", function () {
     // Collect input values from update form
     const updateStaffDTO = {
@@ -272,11 +304,19 @@ document.getElementById("btnUpdateStaff").addEventListener("click", function () 
         return;
     }
 
-    // Send AJAX PUT request
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/staff/${updateStaffDTO.id}`, // Update endpoint
         type: "PUT",
-        contentType: "application/json",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         data: JSON.stringify(updateStaffDTO), // Convert object to JSON string
         success: function () {
             alert("Staff details updated successfully!");
@@ -293,9 +333,19 @@ document.getElementById("btnUpdateStaff").addEventListener("click", function () 
 
 staffIdGenerate();
 function staffIdGenerate() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/staff", // API endpoint to fetch fields
         type: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: function (response) {
             // Validate the response is an array
             if (Array.isArray(response) && response.length > 0) {
@@ -322,13 +372,12 @@ function staffIdGenerate() {
                 }
             }
 
-            // If response is empty or no valid fieldCode found, set default value
             $("staffId").val("STAFF-0001");
         },
         error: function (xhr, status, error) {
-            console.error("Error fetching last Field ID:", error);
-            alert("Unable to fetch the last Field ID. Using default ID.");
-            $("staffId").val("FIELD-0001"); // Set default ID in case of error
+            console.error("Error fetching last staff ID:", error);
+            alert("Unable to fetch the last staff ID. Using default ID.");
+            $("staffId").val("STAFF-0001");
         }
     });
 }

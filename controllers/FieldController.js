@@ -40,23 +40,21 @@ function setError(field, error) {
 }
 
 function displaySelectedImage(event) {
-    const file = event.target.files[0]; // Get the selected file
+    const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // Create an image element and set its src to the selected file's data
             const img = document.createElement('img');
             img.src = e.target.result;
-            img.style.width = "100%"; // Adjust size as needed
-            img.style.height = "auto"; // Maintain aspect ratio
-            img.style.borderRadius = "8px"; // Optional: Style the image
+            img.style.width = "100%"; 
+            img.style.height = "auto";
+            img.style.borderRadius = "8px"; 
 
-            // Clear previous content in the div and append the new image
             const imageUpdateView = document.getElementById('field_imageUpdateView');
             imageUpdateView.innerHTML = '';
             imageUpdateView.appendChild(img);
         };
-        reader.readAsDataURL(file); // Read the file as a data URL
+        reader.readAsDataURL(file); 
     }
 }
 
@@ -73,66 +71,79 @@ function clearFields() {
 
 fieldIdGenerate();
 function fieldIdGenerate() {
+    const token = localStorage.getItem("token");
+    console.log(token);
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/field",
         type: "GET",
+        timeout: 0,
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
         success: function (response) {
-            // Validate the response is an array
             if (Array.isArray(response) && response.length > 0) {
-                // Sort the array by fieldCode in ascending order (if necessary)
                 response.sort((a, b) => a.fieldCode.localeCompare(b.fieldCode));
 
-                // Get the last field in the sorted array
                 const lastField = response[response.length - 1];
 
-                // Validate that fieldCode exists and follows the expected format
                 if (lastField && lastField.fieldCode) {
                     const lastFieldCode = lastField.fieldCode;
 
-                    // Split the fieldCode using '-' and extract the numeric part
                     const lastIdParts = lastFieldCode.split('-');
                     if (lastIdParts.length === 2 && !isNaN(lastIdParts[1])) {
                         const lastNumber = parseInt(lastIdParts[1], 10);
 
-                        // Generate the next ID
                         const nextId = `FIELD-${String(lastNumber + 1).padStart(4, '0')}`;
-                        $("#fieldCode").val(nextId); // Set the next field code in the form
+                        $("#fieldCode").val(nextId);
                         return;
                     }
                 }
             }
 
-            // If response is empty or no valid fieldCode found, set default value
             $("#fieldCode").val("FIELD-0001");
         },
         error: function (xhr, status, error) {
             console.error("Error fetching last Field ID:", error);
             alert("Unable to fetch the last Field ID. Using default ID.");
-            $("#fieldCode").val("FIELD-0001"); // Set default ID in case of error
+            $("#fieldCode").val("FIELD-0001");
         }
     });
 }
 
-
+loadFieldTable();
 function loadFieldTable() {
     $("#tblField > tbody > tr").remove();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/field",
         method: "GET",
+        timeout: 0,
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
         success: (fields) => {
             fields.forEach((field) => {
+                console.log(field);
                 let row = `
                     <tr>
                         <td>${field.fieldCode}</td>
                         <td>${field.fieldName}</td>
-                        <td>${field.location}</td>
-                        <td>${field.size}</td>
+                        <td>${field.fieldLocation}</td>
+                        <td>${field.fieldSize}</td>
                         <td>
-                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewFieldModal" onclick="editField('${item.fieldCode}')">View More</button>
+                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewFieldModal" onclick="editField('${field.fieldCode}')">View More</button>
                         </td>
                         <td>
-                            <button class="btn btn-danger btn-sm" onclick="deleteField('${item.fieldCode}')">Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteField('${field.fieldCode}')">Delete</button>
                         </td>
                     </tr>`;
                 $("#tblField tbody").append(row);
@@ -144,16 +155,16 @@ function loadFieldTable() {
 
 
 $("#saveField").on("click", function () {
-    // Collect input values
     const fieldCode = $("#fieldCode").val();
     const fieldName = $("#fieldName").val();
+    const fieldLocation = $("#fieldLocation").val();
     const fieldSize = $("#sizeOfTheField").val();
     const fieldCrops = $("#cropDetails").val();
     const fieldStaff = $("#staffDetails").val();
     const fieldImageFile = $("#fieldImage")[0].files[0]; // File input
 
-    // Validate required fields
-    if (!fieldCode || !fieldName || !fieldSize || !fieldCrops || !fieldStaff) {
+    
+    if (!fieldCode || !fieldName || !fieldSize) {
         alert("All fields are required.");
         return;
     }
@@ -173,22 +184,30 @@ $("#saveField").on("click", function () {
     };
 
     convertImageToBase64(fieldImageFile)
-        .then((imageBase64) => {
-            // Prepare JSON payload
+        .then((fieldImage) => {
             const fieldData = {
                 fieldCode: fieldCode,
                 fieldName: fieldName,
+                fieldLocation: fieldLocation,
                 fieldSize: fieldSize,
                 crops: fieldCrops,
                 staff: fieldStaff,
-                fieldImage: imageBase64, // Base64 string or null
+                fieldImage: fieldImage,
             };
 
-            // AJAX request
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("No token found. Please log in.");
+                return;
+            }
             $.ajax({
                 url: "http://localhost:8080/api/v1/field",
                 type: "POST",
-                contentType: "application/json",
+                timeout: 0,
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + token
+                },
                 data: JSON.stringify(fieldData),
                 success: (response) => {
                     console.log("Field added successfully:", response);
@@ -282,16 +301,24 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
                 fieldImage: base64Image, // Base64 string or null
             };
 
-            // Send the update request
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("No token found. Please log in.");
+                return;
+            }
             $.ajax({
                 url: `http://localhost:8080/api/v1/field/${fieldCode}`,
                 type: "PUT",
-                contentType: "application/json",
+                timeout: 0,
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + token
+                },
                 data: JSON.stringify(updateFieldDTO),
                 success: function () {
                     alert("Field updated successfully!");
-                    loadTable(); // Reload the field table
-                    $('#viewFieldModal').modal('hide'); // Close the modal
+                    loadFieldTable();
+                    $('#viewFieldModal').modal('hide');
                 },
                 error: function (xhr) {
                     console.error("Error:", xhr.responseText || xhr.statusText);
@@ -308,19 +335,29 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
 
 
 function editField(fieldCode) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/field/${fieldCode}`, 
         method: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token,
+        },
         success: (field) => {
             $("#editFieldCode").val(field.fieldCode);
             $("#editFieldName").val(field.fieldName);
-            $("#editFieldLocation").val(field.location);
-            $("#editFieldSize").val(field.size);
+            $("#editFieldLocation").val(field.fieldLocation);
+            $("#editFieldSize").val(field.fieldSize);
             $("#editFieldCrops").val(field.crops);
             $("#editFieldStaff").val(field.staff);
 
             if (field.fieldImage1) {
-                $("#currentFieldImage1").attr("src", `http://localhost:8080/images/${field.fieldImage1}`);
+                $("#currentFieldImage1").attr("src", `http://localhost:8080/images/${field.fieldImage}`);
             } else {
                 $("#currentFieldImage1").attr("src", ""); 
             }
@@ -333,11 +370,21 @@ function editField(fieldCode) {
 }
 
 
-function deleteField(code) {
+function deleteField(fieldCode) {
     if (confirm("Are you sure you want to delete this field?")) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
         $.ajax({
-            url: `http://localhost:8080/api/v1/field/${code}`,
+            url: `http://localhost:8080/api/v1/field/${fieldCode}`,
             method: "DELETE",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
             success: () => {
                 alert("Field deleted successfully!");
                 loadFieldTable();

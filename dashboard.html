@@ -111,11 +111,11 @@
             </div>
 
             <div class="mb-3">
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFieldModal">Add Field</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addFieldModal" onclick="fieldIdGenerate()">Add Field</button>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-borderless">
+                <table class="table table-borderless" id="tblField">
                     <thead>
                         <tr>
                             <th>Field Code</th>
@@ -127,19 +127,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>F001</td>
-                            <td>Wheat</td>
-                            <td>Location</td>
-                            <td>Size</td>
-                            <td>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewFieldModal"
-                                    onclick="populateFieldDetails('F001', 'Wheat', 'Location', '10 Acres', 'Corn, Rice', 'John Doe', 'field1.jpg', 'field2.jpg')">View More</button>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -221,6 +209,10 @@
                                 <input type="text" class="form-control" id="fieldName" placeholder="Enter field name">
                             </div>
                             <div class="mb-3">
+                                <label for="fieldLocation" class="form-label">Location of the Field</label>
+                                <input type="text" class="form-control" id="fieldLocation" placeholder="Enter Location of the field">
+                            </div>
+                            <div class="mb-3">
                                 <label for="sizeOfTheField" class="form-label">Extent size of the Field</label>
                                 <input type="text" class="form-control" id="sizeOfTheField" placeholder="Enter Size of the field">
                             </div>
@@ -265,7 +257,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-borderless">
+                <table class="table table-borderless" id="tblCrop">
                     <thead>
                         <tr>
                             <th>Crop Code</th>
@@ -279,21 +271,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>C001</td>
-                            <td>Wheat</td>
-                            <td>Triticum aestivum</td>
-                            <td>Cereal</td>
-                            <td>Winter</td>
-                            <td>Field 1</td>
-                            <td>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewCropModal"
-                                    onclick="populateCropDetails('C001', 'Wheat', 'Triticum aestivum', 'wheat.jpg', 'Cereal', 'Winter', 'Field 1')">View More</button>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -425,7 +403,7 @@
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStaffModal">Add Entry</button>
             </div>
         
-            <table class="table .table-borderless">
+            <table class="table .table-borderless" id="tblStaff">
                 <thead>
                     <tr>
                         <th scope="col">Name</th>
@@ -440,22 +418,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>John</td>
-                        <td>Manager</td>
-                        <td>Male</td>
-                        <td>1985-07-24</td>
-                        <td>123 Main St</td>
-                        <td>(555) 123-4567</td>
-                        <td>john.doe@example.com</td>
-                        <td>
-                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewStaffModal" onclick="populateStaffDetails('S001', 'John', 'Doe', 'Manager', 'Male', '2020-05-15', '1985-07-24', '123 Main St, Apt 4, Springfield, IL', '(555) 123-4567', 'john.doe@example.com', 'Admin', 'Field 1', 'Car')"> View More </button>
-                        </td>
-                        
-                        <td>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
+                    
                 </tbody>
             </table>
         </section>
@@ -628,7 +591,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-borderless">
+                <table class="table table-borderless" id="tblLog">
                     <thead>
                         <tr>
                             <th>Log Code</th>
@@ -642,21 +605,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>L001</td>
-                            <td>2024-11-25</td>
-                            <td>Observed unusual growth</td>
-                            <td>Field A</td>
-                            <td>Wheat</td>
-                            <td>John Doe</td>
-                            <td>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewLogModal"
-                                    onclick="populateLogDetails('L001', '2024-11-25', 'Observed unusual growth', 'observed_image.jpg', 'Field A', 'Wheat', 'John Doe')">View More</button>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -783,7 +732,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-borderless">
+                <table class="table table-borderless" id="tblVehicle">
                     <thead>
                         <tr>
                             <th>Vehicle code</th>
@@ -798,21 +747,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>V001</td>
-                            <td>DF 5674</td>
-                            <td>Lorry</td>
-                            <td>Diesel</td>
-                            <td>Available</td>
-                            <td>Member</td>
-                            <td>N/A</td>
-                            <td>
-                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewVehicleModal" onclick="populateVehicleDetails('V001', 'DF 5674', 'Lorry', 'Diesel', 'Available', 'John Doe', 'New')"> View More </button>
-                            </td>
-                            <td>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -938,7 +873,7 @@
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEquipmentModal">Add Equipment</button>
             </div>
 
-            <table class="table table-borderless">
+            <table class="table table-borderless" id="equipmentTable">
                 <thead>
                     <tr>
                         <th scope="col">Equipment Id</th>
@@ -952,49 +887,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>001</td>
-                        <td>Tractor</td>
-                        <td>Heavy Machinery</td>
-                        <td>Operational</td>
-                        <td>John Doe</td>
-                        <td>Field A</td>
-                        <td>
-                            <button class="btn btn-success btn-sm">View More</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>002</td>
-                        <td>Plow</td>
-                        <td>Tool</td>
-                        <td>In Maintenance</td>
-                        <td>Jane Smith</td>
-                        <td>Field B</td>
-                        <td>
-                            <button class="btn btn-success btn-sm">View More</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>003</td>
-                        <td>Irrigation Pump</td>
-                        <td>Utility</td>
-                        <td>Operational</td>
-                        <td>Robert Brown</td>
-                        <td>Field C</td>
-                        <td>
-                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewEquipmentModal"
-                                onclick="populateEquipmentDetails('V001', 'Irrigation Pump', 'Utility', 'Operational', 'Robert Brown', 'Field C')">View More</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>
-                    </tr>
+                    
                 </tbody>
             </table>
         </section>
@@ -1143,13 +1036,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>user@example.com</td>
-                            <td>Manager</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </td>
-                        </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -1159,8 +1046,12 @@
 
 <script src="assets/js/jquery-3.6.1.min.js"></script>
 <script src="assets/js/SPANavBar.js"></script>
-<script src="assets/js/populateModelDetails.js"></script>
+<script src="controllers/CropController.js"></script>
+<script src="controllers/EquipmentController.js"></script>
+<script src="controllers/FieldController.js"></script>
+<script src="controllers/LogMonitoringController.js"></script>
 <script src="controllers/StaffController.js"></script>
+<script src="controllers/VehicleController.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-QVnVybkjBYsqNynDJvFn+L4c7mPlGAtfpO8XirIjUw3rxG1VQ+V7PF1yFYuo+pK4" crossorigin="anonymous"></script>
 </body>

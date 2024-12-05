@@ -40,9 +40,19 @@ function setError(field, error) {
 function loadLogTable() {
     $("#tblLog > tbody > tr").remove();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/logs",
         method: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (logs) => {
             logs.forEach((log) => {
                 let row = `
@@ -69,9 +79,19 @@ function loadLogTable() {
 }
 
 function viewLogDetails(logCode) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/logs/${logCode}`,
         method: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (log) => {
             // Populate the modal fields with log data
             $("#editLogCode").val(log.logCode);
@@ -100,9 +120,19 @@ function viewLogDetails(logCode) {
 
 function deleteLog(logCode) {
     if (confirm(`Are you sure you want to delete the log with code: ${logCode}?`)) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
         $.ajax({
             url: `http://localhost:8080/api/v1/logs/${logCode}`,
             method: "DELETE",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
             success: () => {
                 alert(`Log with code ${logCode} has been deleted.`);
                 loadLogTable(); // Reload the table to reflect changes
@@ -161,11 +191,19 @@ $("#saveLog").on("click", function () {
                 staffId: logStaff,
             };
 
-            // Send AJAX POST request to the backend
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("No token found. Please log in.");
+                return;
+            }
             $.ajax({
                 url: "http://localhost:8080/api/v1/logs", // Backend endpoint
                 type: "POST",
-                contentType: "application/json",
+                timeout: 0,
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + token
+                },
                 data: JSON.stringify(monitorLogDTO),
                 success: (response) => {
                     console.log("MonitorLog added successfully:", response);
@@ -239,11 +277,19 @@ document.getElementById("btnLogUpdate").addEventListener("click", function () {
                 observationImage: base64Image, // Base64 image string or null
             };
 
-            // Send the update request
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("No token found. Please log in.");
+                return;
+            }
             $.ajax({
                 url: `http://localhost:8080/api/v1/logs/${logCode}`,
                 type: "PUT",
-                contentType: "application/json",
+                timeout: 0,
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + token
+                },
                 data: JSON.stringify(updateLogDTO),
                 success: function () {
                     alert("Log details updated successfully!");
@@ -276,9 +322,19 @@ function clearLogFormFields() {
 
 function deleteLog(code) {
     if (confirm("Are you sure you want to delete this log?")) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
         $.ajax({
             url: `http://localhost:8080/api/v1/logs/${code}`,
             method: "DELETE",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
             success: () => {
                 alert("Log deleted successfully!");
                 loadLogTable();
@@ -289,9 +345,19 @@ function deleteLog(code) {
 }
 
 function LogIdGenerate() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/logs", // API endpoint to fetch logs
         type: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: function (response) {
             try {
                 // Validate response as an array

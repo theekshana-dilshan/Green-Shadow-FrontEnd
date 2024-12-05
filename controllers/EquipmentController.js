@@ -1,19 +1,15 @@
 // Regular Expressions
-const equipmentIdRegEx = /^[A-Z0-9]{3,10}$/;
+const equipmentIdRegEx = /^EQUIPMENT-\d{4}$/;
 const equipmentNameRegEx = /^[A-Za-z ]{3,50}$/;
 const equipmentTypeRegEx = /^[A-Za-z ]{3,30}$/;
 const equipmentStatusRegEx = /^[A-Za-z ]{3,30}$/;
-const staffDetailsRegEx = /^[A-Za-z ]{3,50}$/;
-const fieldDetailsRegEx = /^[A-Za-z0-9 ]{3,50}$/;
 
 // Validation Configuration
 let equipmentValidations = [
     { reg: equipmentIdRegEx, field: $("#equipmentId"), error: "ID: 3-10 alphanumeric characters" },
     { reg: equipmentNameRegEx, field: $("#equipmentName"), error: "Name: 3-50 letters" },
     { reg: equipmentTypeRegEx, field: $("#equipmentType"), error: "Type: 3-30 letters" },
-    { reg: equipmentStatusRegEx, field: $("#equipmentStatus"), error: "Status: 3-30 letters" },
-    { reg: staffDetailsRegEx, field: $("#staffDetails"), error: "Staff Details: 3-50 letters" },
-    { reg: fieldDetailsRegEx, field: $("#fieldDetails"), error: "Field Details: 3-50 alphanumeric characters" },
+    { reg: equipmentStatusRegEx, field: $("#equipmentStatus"), error: "Status: 3-30 letters" }
 ];
 
 function checkEquipmentValidity() {
@@ -42,37 +38,6 @@ function setError(field, error) {
 }
 
 
-function loadEquipmentTable() {
-    $("#tblEquipment > tbody > tr").remove();
-
-    $.ajax({
-        url: "http://localhost:8080/api/v1/equipment",
-        method: "GET",
-        success: (equipments) => {
-            equipments.forEach((equipment) => {
-                let row = `
-                    <tr>
-                        <td>${equipment.equipmentId}</td>
-                        <td>${equipment.name}</td>
-                        <td>${equipment.type}</td>
-                        <td>${equipment.status}</td>
-                        <td>${equipment.staffDetails}</td>
-                        <td>${equipment.fieldDetails}</td>
-                        <td>
-                            <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewEquipmentModal" 
-                                onclick="populateEquipmentDetails('${equipment.equipmentId}', '${equipment.name}', '${equipment.type}', '${equipment.status}', '${equipment.staffDetails}', '${equipment.fieldDetails}')">View More</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger btn-sm" onclick="deleteEquipment('${equipment.equipmentId}')">Delete</button>
-                        </td>
-                    </tr>`;
-                $("#tblEquipment tbody").append(row);
-            });
-        },
-        error: (xhr) => console.error("Failed to load equipment:", xhr.status),
-    });
-}
-
 function populateEquipmentDetails(id, name, type, status, staff, field) {
     $("#editEquipmentId").val(id);
     $("#editEquipmentName").val(name);
@@ -96,9 +61,19 @@ window.onclick = function(event) {
 function loadEquipmentTable() {
     $("#equipmentTable > tbody > tr").remove();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/equipment",
         method: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (equipmentList) => {
             equipmentList.forEach((equipment) => {
                 let row = `
@@ -125,10 +100,19 @@ function loadEquipmentTable() {
 }
 
 function viewEquipmentDetails(equipmentId) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/equipment/${equipmentId}`,
         method: "GET",
-        contentType: "application/json",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (equipment) => {
             if (!equipment) {
                 alert("No data found for the selected equipment.");
@@ -153,9 +137,19 @@ function viewEquipmentDetails(equipmentId) {
 
 function deleteEquipment(equipmentId) {
     if (confirm(`Are you sure you want to delete equipment with ID: ${equipmentId}?`)) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
         $.ajax({
             url: `http://localhost:8080/api/v1/equipment/${equipmentId}`,
             method: "DELETE",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
             success: () => {
                 alert("Equipment deleted successfully.");
                 loadEquipmentTable(); // Refresh the table
@@ -176,13 +170,11 @@ $("#saveEquipment").on("click", function () {
     var assignedStaff = $("#staffDetails").val();
     var assignedField = $("#fieldDetails").val();
 
-    // Validate required fields
     if (!equipmentId || !equipmentName || !equipmentType || !equipmentStatus || !assignedStaff || !assignedField) {
         alert("All fields are required.");
         return;
     }
 
-    // Prepare JSON data
     var data = {
         equipmentId: equipmentId,
         name: equipmentName,
@@ -192,17 +184,25 @@ $("#saveEquipment").on("click", function () {
         assignedFieldDetails: assignedField,
     };
 
-    // Send AJAX request
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/equipment",
         type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(data), // Convert data to JSON string
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
+        data: JSON.stringify(data),
         success: (response) => {
             console.log("Equipment added successfully:", response);
             alert("Equipment added successfully!");
-            clearEquipmentFields(); // Clear input fields
-            refreshEquipmentTable(); // Refresh the equipment table
+            clearEquipmentFields();
+            refreshEquipmentTable();
         },
         error: (error) => {
             console.error("Error adding equipment:", error);
@@ -225,11 +225,66 @@ function refreshEquipmentTable() {
     loadEquipmentTable();
 }
 
+EquipmetIdGenerate();
+function EquipmetIdGenerate() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
+    $.ajax({
+        url: "http://localhost:8080/api/v1/equipment",
+        type: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
+        success: function (response) {
+            if (Array.isArray(response) && response.length > 0) {
+                response.sort((a, b) => a.id.localeCompare(b.id));
+
+                const lastEquipmet = response[response.length - 1];
+
+                if (lastEquipmet && lastEquipmet.e) {
+                    const lastEquipmetCode = lastEquipmet.EquipmentId;
+
+                    const lastIdParts = lastEquipmetCode.split('-');
+                    if (lastIdParts.length === 2 && !isNaN(lastIdParts[1])) {
+                        const lastNumber = parseInt(lastIdParts[1], 10);
+
+                        const nextId = `EQUIPMENT-${String(lastNumber + 1).padStart(4, '0')}`;
+                        $("#equipmentId").val(nextId);
+                        return;
+                    }
+                }
+            }
+
+            $("equipmentId").val("EQUIPMENT-0001");
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching last equipment ID:", error);
+            alert("Unable to fetch the last equipment ID. Using default ID.");
+            $("equipmentId").val("EQUIPMENT-0001");
+        }
+    });
+}
+
 setfieldId();
 function setfieldId() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/field",
         type: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: function (response) {
             if (Array.isArray(response)) {
                 $("#fieldDetails").empty();
@@ -266,9 +321,19 @@ function setfieldId() {
 
 setStaffId();
 function setStaffId() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/staff",
         type: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: function (response) {
             if (Array.isArray(response)) {
                 $("#staffDetails").empty();
@@ -283,13 +348,13 @@ function setStaffId() {
 
                 if ($("#staffDetails").children().length === 0) {
                     $("#staffDetails").append(
-                        `<option value="FIELD-0001">FIELD-0001</option>`
+                        `<option value="STAFF-0001">STAFF-0001</option>`
                     );
                 }
             } else {
                 console.warn("Invalid response format. Setting default field ID.");
                 $("#staffDetails").html(
-                    `<option value="FIELD-0001">FIELD-0001</option>`
+                    `<option value="STAFF-0001">STAFF-0001</option>`
                 );
             }
         },
@@ -297,7 +362,7 @@ function setStaffId() {
             console.error("Error fetching fields:", error);
             alert("Unable to fetch fields. Using default field ID.");
             $("#staffDetails").html(
-                `<option value="FIELD-0001">FIELD-0001</option>`
+                `<option value="STAFF-0001">STAFF-0001</option>`
             );
         }
     });
@@ -312,7 +377,6 @@ document.getElementById("equUpdateBtn").addEventListener("click", function () {
     const equStaff = $("#editStaffDetails").val();
     const equField = $("#editFieldDetails").val();
 
-    // Validation
     if (!equId || !equName || !equType || !equStatus || !equStaff || !equField) {
         alert("All fields are required!");
         return;
@@ -332,15 +396,23 @@ document.getElementById("equUpdateBtn").addEventListener("click", function () {
 
     console.log("Form data:", formData);
 
-    // AJAX request
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/equipment/${formData.equipmentId}`,
         type: "PUT",
-        contentType: "application/json",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         data: JSON.stringify(formData),
         success: function () {
             alert("Equipment details updated successfully!");
-            $("#updateModal").modal("hide"); // Hide modal
+            $("#updateModal").modal("hide");
             // Optionally, refresh the equipment table or data here
         },
         error: function (xhr) {

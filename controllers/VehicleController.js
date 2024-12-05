@@ -1,9 +1,9 @@
-const vehicleCodeRegEx = /^V[0-9]{3}$/;
+const vehicleCodeRegEx = /^VEH-\d{4}$/;
 const licensePlateRegEx = /^[A-Z0-9 ]{5,10}$/;
 const vehicleCategoryRegEx = /^[A-Za-z ]{3,50}$/;
 const fuelTypeRegEx = /^[A-Za-z ]+$/;
 const statusRegEx = /^[A-Za-z ]+$/;
-const staffMemberRegEx = /^[A-Za-z ]{3,50}$/;
+const staffMemberRegEx = /^STF\d{3}$/;
 
 let vehicleValidations = [
     { reg: vehicleCodeRegEx, field: $("#vehicleCode"), error: "Vehicle Code Pattern: V001" },
@@ -42,9 +42,19 @@ function setError(field, error) {
 function loadVehicleTable() {
     $("#tblVehicle > tbody > tr").remove();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/vehicle",
         method: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (vehicles) => {
             vehicles.forEach((vehicle) => {
                 let row = `
@@ -97,11 +107,19 @@ document.getElementById("updateVehicleBtn").addEventListener("click", function (
 
     console.log("Updating Vehicle with Data:", vehicleData);
 
-    // Make the PUT request using the JSON data
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/vehicle/${vehicleData.code}`,
         type: "PUT",
-        contentType: "application/json",  // Indicating the content type is JSON
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         data: JSON.stringify(vehicleData), // Convert the object to a JSON string
         success: function () {
             alert("Vehicle details updated successfully!");
@@ -119,11 +137,19 @@ document.getElementById("updateVehicleBtn").addEventListener("click", function (
 
 
 function loadTable() {
-    // Fetch data from the backend API
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/vehicle",
         type: "GET",
-        contentType: "application/json",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (response) => {
             try {
                 if (Array.isArray(response)) {
@@ -145,7 +171,7 @@ function loadTable() {
 
 function populateVehicleTable(vehicleList) {
     try {
-        const tableBody = $(".table-responsive tbody");
+        const tableBody = $("#tblVehicle tbody");
         tableBody.empty(); // Clear existing rows
 
         // Loop through each vehicle object and create table rows
@@ -179,11 +205,19 @@ function populateVehicleTable(vehicleList) {
 }
 
 function viewVehicleDetails(vehicleCode) {
-    // Fetch the vehicle details from the backend using the vehicle code
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: `http://localhost:8080/api/v1/vehicle/${vehicleCode}`,
         type: "GET",
-        contentType: "application/json",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: (response) => {
             try {
                 // Check if response contains the expected vehicle details
@@ -218,9 +252,19 @@ function viewVehicleDetails(vehicleCode) {
 
 function deleteVehicle(code) {
     if (confirm("Are you sure you want to delete this vehicle?")) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
         $.ajax({
             url: `http://localhost:8080/api/v1/vehicle/${code}`,
             type: "DELETE",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
             success: () => {
                 alert("Vehicle deleted successfully!");
                 loadTable(); // Refresh table after deletion
@@ -266,11 +310,19 @@ $("#saveVehicle").on("click", function () {
         staffId: staff, // Adjust field name as needed
     };
 
-    // Send an AJAX POST request with JSON payload
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
         url: "http://localhost:8080/api/v1/vehicle", // Backend API endpoint
         type: "POST",
-        contentType: "application/json", // Send JSON data
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         data: JSON.stringify(vehicleData), // Convert the vehicle data to JSON string
         success: function (response) {
             console.log("Vehicle added successfully:", response);
@@ -292,51 +344,63 @@ $("#saveVehicle").on("click", function () {
 
 
 function VehicleIdGenerate() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
     $.ajax({
-        url: "http://localhost:8080/api/v1/vehicle", // API endpoint to fetch fields
+        url: "http://localhost:8080/api/v1/vehicle",
         type: "GET",
+        timeout: 0,
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + token
+        },
         success: function (response) {
-            // Validate the response is an array
             if (Array.isArray(response) && response.length > 0) {
-                // Sort the array by fieldCode in ascending order (if necessary)
                 response.sort((a, b) => a.code.localeCompare(b.code));
 
-                // Get the last field in the sorted array
                 const lastField = response[response.length - 1];
 
-                // Validate that fieldCode exists and follows the expected format
                 if (lastField && lastField.code) {
                     const lastFieldCode = lastField.code;
 
-                    // Split the fieldCode using '-' and extract the numeric part
                     const lastIdParts = lastFieldCode.split('-');
                     if (lastIdParts.length === 2 && !isNaN(lastIdParts[1])) {
                         const lastNumber = parseInt(lastIdParts[1], 10);
 
-                        // Generate the next ID
-                        const nextId = `VEH-${String(lastNumber + 1).padStart(4, '0')}`;
+                        const nextId = `VEHICLE-${String(lastNumber + 1).padStart(4, '0')}`;
                         $("#vehicleCode").val(nextId);
                         return;
                     }
                 }
             }
-
-            // If response is empty or no valid fieldCode found, set default value
-            $("#vehicleCode").val("VEH-0001");
+            $("#vehicleCode").val("VEHICLE-0001");
         },
         error: function (xhr, status, error) {
-            console.error("Error fetching last Field ID:", error);
-            alert("Unable to fetch the last Field ID. Using default ID.");
-            $("#vehicleCode").val("FIELD-0001"); // Set default ID in case of error
+            console.error("Error fetching last vehicle ID:", error);
+            alert("Unable to fetch the last vehicle ID. Using default ID.");
+            $("#vehicleCode").val("VEHICLE-0001");
         }
     });
 }
 
 function deleteVehicle(code) {
     if (confirm("Are you sure you want to delete this vehicle?")) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
         $.ajax({
             url: `http://localhost:8080/api/v1/vehicle/${code}`,
             method: "DELETE",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
             success: () => {
                 alert("Vehicle deleted successfully!");
                 loadVehicleTable();
