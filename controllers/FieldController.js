@@ -74,7 +74,7 @@ function clearFields() {
 fieldIdGenerate();
 function fieldIdGenerate() {
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/field",
+        url: "http://localhost:8080/api/v1/field",
         type: "GET",
         success: function (response) {
             // Validate the response is an array
@@ -118,7 +118,7 @@ function loadFieldTable() {
     $("#tblField > tbody > tr").remove();
 
     $.ajax({
-        url: "http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/field",
+        url: "http://localhost:8080/api/v1/field",
         method: "GET",
         success: (fields) => {
             fields.forEach((field) => {
@@ -143,41 +143,71 @@ function loadFieldTable() {
 }
 
 
-$("#saveField").on('click', function() {
-    var fieldCode = $("#fieldCode").val();
-    var fieldName = $("#fieldName").val();
-    var fieldSize = $("#sizeOfTheField").val();
-    var fieldCrops = $("#cropDetails").val();
-    var fieldStaff = $("#staffDetails").val();
+$("#saveField").on("click", function () {
+    // Collect input values
+    const fieldCode = $("#fieldCode").val();
+    const fieldName = $("#fieldName").val();
+    const fieldSize = $("#sizeOfTheField").val();
+    const fieldCrops = $("#cropDetails").val();
+    const fieldStaff = $("#staffDetails").val();
+    const fieldImageFile = $("#fieldImage")[0].files[0]; // File input
 
-    var fieldImage = $("#fieldImage")[0].files[0];
+    // Validate required fields
+    if (!fieldCode || !fieldName || !fieldSize || !fieldCrops || !fieldStaff) {
+        alert("All fields are required.");
+        return;
+    }
 
-    var formData = new FormData();
-    formData.append("fieldCode", fieldCode);
-    formData.append("fieldName", fieldName);
-    formData.append("fieldSize", fieldSize);
-    formData.append("crops", fieldCrops);
-    formData.append("staff", fieldStaff);
-    formData.append("fieldImage1", fieldImage);
+    // Convert image to Base64
+    const convertImageToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                resolve(null); // No image provided
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]); // Extract base64 part
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    };
 
-    $.ajax({
-        url: "http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/field",
-        type: "POST",
-        processData: false,
-        contentType: false,
-        data: formData,
-        success: (response) => {
-            console.log("Field added successfully:", response);
-            alert("Field added successfully!");
-            clearFieldForm();
-            loadFieldTable();
-        },
-        error: (error) => {
-            console.error("Error adding field:", error);
-            alert("Failed to add field. Please try again.");
-        }
-    });
+    convertImageToBase64(fieldImageFile)
+        .then((imageBase64) => {
+            // Prepare JSON payload
+            const fieldData = {
+                fieldCode: fieldCode,
+                fieldName: fieldName,
+                fieldSize: fieldSize,
+                crops: fieldCrops,
+                staff: fieldStaff,
+                fieldImage: imageBase64, // Base64 string or null
+            };
+
+            // AJAX request
+            $.ajax({
+                url: "http://localhost:8080/api/v1/field",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(fieldData),
+                success: (response) => {
+                    console.log("Field added successfully:", response);
+                    alert("Field added successfully!");
+                    clearFieldForm();
+                    loadFieldTable();
+                },
+                error: (error) => {
+                    console.error("Error adding field:", error);
+                    alert("Failed to add field. Please try again.");
+                },
+            });
+        })
+        .catch((error) => {
+            console.error("Error converting image to Base64:", error);
+            alert("Failed to process the image. Please try again.");
+        });
 });
+
 
 function clearFieldForm() {
     $("#fieldCode").val('');
@@ -187,37 +217,6 @@ function clearFieldForm() {
     $("#staffDetails").val('');
     $("#fieldImage").val('');
     $("#fieldImage2").val('');
-}
-
-
-function saveFieldDetails() {
-    extractFieldImages().then(({ image1, image2 }) => {
-        const updatedField = {
-            fieldCode: $("#editFieldCode").val(),
-            fieldName: $("#editFieldName").val(),
-            location: $("#editFieldLocation").val(),
-            size: $("#editFieldSize").val(),
-            crops: $("#editFieldCrops").val(),
-            staff: $("#editFieldStaff").val(),
-            image1: image1,
-            image2: image2,
-        };
-
-        $.ajax({
-            url: `http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/field/${updatedField.fieldCode}`,
-            method: "PATCH",
-            contentType: "application/json",
-            data: JSON.stringify(updatedField),
-            success: () => {
-                alert("Field updated successfully!");
-                $("#viewFieldModal").modal("hide");
-                loadFieldTable();
-            },
-            error: (xhr) => console.error("Failed to update field:", xhr.status),
-        });
-    }).catch((error) => {
-        console.error("Image processing error:", error);
-    });
 }
 
 document.getElementById("editFieldImage").addEventListener("change", function (event) {
@@ -242,8 +241,8 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
     const fieldSize = $("#editFieldSize").val();
     const fieldCrops = $("#editFieldCrops").val();
     const fieldStaff = $("#editFieldStaff").val();
-    const fieldImageFile = $("#editFieldImage")[0].files[0];
-    const existingImageBase64 = $("#imageUpdateFieldView img").attr("src");
+    const fieldImageFile = $("#editFieldImage")[0].files[0]; // New image file
+    const existingImageBase64 = $("#imageUpdateFieldView img").attr("src"); // Existing image base64
 
     // Validate required fields
     if (!fieldCode || !fieldName || !fieldLocation || !fieldSize || !fieldCrops || !fieldStaff) {
@@ -251,55 +250,66 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
         return;
     }
 
-    // Convert the uploaded file or use the existing base64
-    if (fieldImageFile) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            const base64Image = event.target.result.split(",")[1]; // Extract base64 without prefix
-            sendUpdateRequest(fieldCode, fieldName, fieldLocation, fieldSize, fieldCrops, fieldStaff, base64Image);
-        };
-        reader.readAsDataURL(fieldImageFile);
-    } else if (existingImageBase64) {
-        const base64Image = existingImageBase64.split(",")[1]; // Extract base64 without prefix
-        sendUpdateRequest(fieldCode, fieldName, fieldLocation, fieldSize, fieldCrops, fieldStaff, base64Image);
-    } else {
-        alert("Please upload or select an image!");
-        return;
-    }
-});
-
-function sendUpdateRequest(fieldCode, fieldName, fieldLocation, fieldSize, fieldCrops, fieldStaff, base64Image) {
-    const updateFieldDTO = {
-        fieldCode: fieldCode,
-        fieldName: fieldName,
-        fieldLocation: fieldLocation,
-        fieldSize: fieldSize,
-        fieldCrops: fieldCrops, // Add crops information
-        fieldStaff: fieldStaff, // Add staff information
-        fieldImage: base64Image, // Include base64 image in JSON payload
+    // Helper function to handle image conversion
+    const convertImageToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                resolve(null); // No new image provided
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]); // Extract base64 part
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
     };
 
-    $.ajax({
-        url: `http://localhost:5050/green/api/v1/field/${fieldCode}`,
-        type: "PUT",
-        contentType: "application/json", // Send JSON data
-        data: JSON.stringify(updateFieldDTO),
-        success: function () {
-            alert("Field updated successfully!");
-            loadTable(); // Function to reload the field table after update
-            $('#viewFieldModal').modal('hide'); // Close the modal
-        },
-        error: function (xhr) {
-            console.error("Error:", xhr.responseText || xhr.statusText);
-            alert(`Failed to update field details. Error: ${xhr.responseText || xhr.statusText}`);
-        },
-    });
-}
+    // Determine the image to use: new file or existing base64
+    const processImage = fieldImageFile
+        ? convertImageToBase64(fieldImageFile) // Convert new file
+        : Promise.resolve(existingImageBase64 ? existingImageBase64.split(",")[1] : null); // Use existing base64 or null
+
+    processImage
+        .then((base64Image) => {
+            // Prepare the JSON payload
+            const updateFieldDTO = {
+                fieldCode: fieldCode,
+                fieldName: fieldName,
+                fieldLocation: fieldLocation,
+                fieldSize: fieldSize,
+                fieldCrops: fieldCrops,
+                fieldStaff: fieldStaff,
+                fieldImage: base64Image, // Base64 string or null
+            };
+
+            // Send the update request
+            $.ajax({
+                url: `http://localhost:8080/api/v1/field/${fieldCode}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(updateFieldDTO),
+                success: function () {
+                    alert("Field updated successfully!");
+                    loadTable(); // Reload the field table
+                    $('#viewFieldModal').modal('hide'); // Close the modal
+                },
+                error: function (xhr) {
+                    console.error("Error:", xhr.responseText || xhr.statusText);
+                    alert(`Failed to update field details. Error: ${xhr.responseText || xhr.statusText}`);
+                },
+            });
+        })
+        .catch((error) => {
+            console.error("Error converting image to Base64:", error);
+            alert("Failed to process the image. Please try again.");
+        });
+});
+
 
 
 function editField(fieldCode) {
     $.ajax({
-        url: `http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/field/${fieldCode}`, 
+        url: `http://localhost:8080/api/v1/field/${fieldCode}`, 
         method: "GET",
         success: (field) => {
             $("#editFieldCode").val(field.fieldCode);
@@ -326,7 +336,7 @@ function editField(fieldCode) {
 function deleteField(code) {
     if (confirm("Are you sure you want to delete this field?")) {
         $.ajax({
-            url: `http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/field/${code}`,
+            url: `http://localhost:8080/api/v1/field/${code}`,
             method: "DELETE",
             success: () => {
                 alert("Field deleted successfully!");

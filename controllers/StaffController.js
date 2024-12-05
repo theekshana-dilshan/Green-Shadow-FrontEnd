@@ -40,7 +40,7 @@ function loadStaffTable() {
     $("#tblStaff > tbody > tr").remove();
 
     $.ajax({
-        url: "http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/staff",
+        url: "http://localhost:8080/api/v1/staff",
         method: "GET",
         success: (staffList) => {
             staffList.forEach((staff) => {
@@ -71,7 +71,7 @@ function loadStaffTable() {
 function viewStaffDetails(staffId) {
     // Fetch staff details by staffId
     $.ajax({
-        url: `http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/staff/${staffId}`,
+        url: `http://localhost:8080/api/v1/staff/${staffId}`,
         method: "GET",
         success: (staff) => {
             // Populate modal with staff details
@@ -100,7 +100,7 @@ function deleteStaff(staffId) {
     if (confirm("Are you sure you want to delete this staff member?")) {
         // Make AJAX request to delete the staff
         $.ajax({
-            url: `http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/staff/${staffId}`,
+            url: `http://localhost:8080/api/v1/staff/api/v1/staff/${staffId}`,
             method: "DELETE",
             success: () => {
                 alert("Staff deleted successfully!");
@@ -113,55 +113,66 @@ function deleteStaff(staffId) {
     }
 }
 
-$("#btnStaffSave").on('click', function() {
+$("#btnStaffSave").on('click', function () {
     // Get values from input fields in the 'Add Staff' modal
-    var code = $("#staffId").val();
-    var firstName = $("#firstName").val();
-    var lastName = $("#lastName").val();
-    var designation = $("#designation").val();
-    var gender = $("#gender").val();
-    var dob = $("#dob").val(); // Expecting `yyyy-MM-dd` input format
-    var address = $("#address").val();
-    var contact = $("#contact").val();
-    var email = $("#email").val();
-    var role = $("#role").val();
-    var field = $("#field").val();
-    var vehicle = $("#vehicle").val();
+    const code = $("#staffId").val();
+    const firstName = $("#firstName").val();
+    const lastName = $("#lastName").val();
+    const designation = $("#designation").val();
+    const gender = $("#gender").val();
+    const dob = $("#dob").val(); // Expecting `yyyy-MM-dd` input format
+    const address = $("#address").val();
+    const contact = $("#contact").val();
+    const email = $("#email").val();
+    const role = $("#role").val();
+    const field = $("#field").val();
+    const vehicle = $("#vehicle").val();
 
+    // Validate required fields
+    if (!code || !firstName || !lastName || !designation || !gender || !dob || !address || !contact || !email || !role) {
+        alert("All fields are required!");
+        return;
+    }
 
-    var formData = new FormData();
-    formData.append("id", code);
-    formData.append("firstName", firstName);
-    formData.append("lastName", lastName);
-    formData.append("designation", designation);
-    formData.append("gender", gender);
-    formData.append("dob", dob); // Correct format
-    formData.append("address", address);
-    formData.append("contact", contact);
-    formData.append("email", email);
-    formData.append("role", role);
-    formData.append("fieldCodes", field);
-    formData.append("vehicle", vehicle); // Added vehicle
+    // Create JSON object for the staff data
+    const staffData = {
+        id: code,
+        firstName: firstName,
+        lastName: lastName,
+        designation: designation,
+        gender: gender,
+        dob: dob, // Ensure format is `yyyy-MM-dd`
+        address: address,
+        contact: contact,
+        email: email,
+        role: role,
+        fieldCodes: field ? field.split(",") : [], // Split multiple fields into an array if needed
+        vehicle: vehicle
+    };
 
     // Send AJAX POST request to the backend
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/staff", // Backend endpoint
+        url: "http://localhost:8080/api/v1/staff", // Backend endpoint
         type: "POST",
-        processData: false,
-        contentType: false,
-        data: formData, // Form data with fields and file
+        contentType: "application/json",
+        data: JSON.stringify(staffData), // Convert staffData object to JSON string
         success: (response) => {
             console.log("Staff added successfully:", response);
             alert("Staff added successfully!");
-            clearFields();
-            fieldIdGenerate(); // Clear input fields after success
+            clearFields(); // Clear input fields after success
+            fieldIdGenerate(); // Regenerate field IDs if necessary
         },
-        error: (error) => {
-            console.error("Error adding staff:", error);
-            alert("Failed to add staff. Please try again.");
+        error: (xhr, status, error) => {
+            console.error("Error adding staff:", xhr.responseText || error);
+            if (xhr.responseText) {
+                alert("Failed to add staff: " + xhr.responseText);
+            } else {
+                alert("Failed to add staff. Please try again.");
+            }
         }
     });
 });
+
 
 // Clear fields function to reset inputs after submission
 function clearFields() {
@@ -181,7 +192,7 @@ function clearFields() {
 
 function setfieldId() {
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/field", // API endpoint to fetch fields
+        url: "http://localhost:8080/api/v1/field", // API endpoint to fetch fields
         type: "GET",
         success: function (response) {
             if (Array.isArray(response)) {
@@ -225,7 +236,7 @@ setfieldId();
 function deleteStaff(id) {
     if (confirm("Are you sure you want to delete this staff?")) {
         $.ajax({
-            url: `http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/staff/${id}`,
+            url: `http://localhost:8080/api/v1/staff/${id}`,
             method: "DELETE",
             success: () => {
                 alert("Staff deleted successfully!");
@@ -244,32 +255,33 @@ document.getElementById("btnUpdateStaff").addEventListener("click", function () 
         lastName: $("#editLastName").val(),
         designation: $("#editDesignation").val(),
         gender: $("#editGender").val(),
-        joinedDate: $("#editJoinedDate").val(),
-        dob: $("#editDOB").val(),
+        joinedDate: $("#editJoinedDate").val(), // Ensure the format is `yyyy-MM-dd`
+        dob: $("#editDOB").val(), // Ensure the format is `yyyy-MM-dd`
         contact: $("#editContact").val(),
         address: $("#editAddress").val(),
         email: $("#editEmail").val(),
         role: $("#editRole").val(),
-        fieldCodes: $("#editField").val(),
+        fieldCodes: $("#editField").val() ? $("#editField").val().split(",") : [], // Split multiple fields if provided
         vehicle: $("#editVehicle").val()
     };
 
     // Validate input fields
-    if (Object.values(updateStaffDTO).some((field) => !field)) {
+    const isInvalid = Object.values(updateStaffDTO).some((field) => !field);
+    if (isInvalid) {
         alert("All fields are required!");
         return;
     }
 
-    // Send update request
+    // Send AJAX PUT request
     $.ajax({
-        url: `http://localhost:5050/green/api/v1/staff/${updateStaffDTO.id}`,
+        url: `http://localhost:8080/api/v1/staff/${updateStaffDTO.id}`, // Update endpoint
         type: "PUT",
         contentType: "application/json",
-        data: JSON.stringify(updateStaffDTO),
+        data: JSON.stringify(updateStaffDTO), // Convert object to JSON string
         success: function () {
             alert("Staff details updated successfully!");
-            $("#viewStaffModal").modal("hide");
-            loadStaffTable();
+            $("#viewStaffModal").modal("hide"); // Close modal after success
+            loadStaffTable(); // Reload staff table to reflect changes
         },
         error: function (xhr) {
             console.error("Error:", xhr.responseText || xhr.statusText);
@@ -278,10 +290,11 @@ document.getElementById("btnUpdateStaff").addEventListener("click", function () 
     });
 });
 
+
 staffIdGenerate();
 function staffIdGenerate() {
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/staff", // API endpoint to fetch fields
+        url: "http://localhost:8080/api/v1/staff", // API endpoint to fetch fields
         type: "GET",
         success: function (response) {
             // Validate the response is an array

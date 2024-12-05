@@ -46,7 +46,7 @@ function loadEquipmentTable() {
     $("#tblEquipment > tbody > tr").remove();
 
     $.ajax({
-        url: "http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/equipment",
+        url: "http://localhost:8080/api/v1/equipment",
         method: "GET",
         success: (equipments) => {
             equipments.forEach((equipment) => {
@@ -97,7 +97,7 @@ function loadEquipmentTable() {
     $("#equipmentTable > tbody > tr").remove();
 
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/equ",
+        url: "http://localhost:8080/api/v1/equipment",
         method: "GET",
         success: (equipmentList) => {
             equipmentList.forEach((equipment) => {
@@ -126,7 +126,7 @@ function loadEquipmentTable() {
 
 function viewEquipmentDetails(equipmentId) {
     $.ajax({
-        url: `http://localhost:5050/green/api/v1/equ/${equipmentId}`,
+        url: `http://localhost:8080/api/v1/equipment/${equipmentId}`,
         method: "GET",
         contentType: "application/json",
         success: (equipment) => {
@@ -154,7 +154,7 @@ function viewEquipmentDetails(equipmentId) {
 function deleteEquipment(equipmentId) {
     if (confirm(`Are you sure you want to delete equipment with ID: ${equipmentId}?`)) {
         $.ajax({
-            url: `http://localhost:5050/green/api/v1/equ/${equipmentId}`,
+            url: `http://localhost:8080/api/v1/equipment/${equipmentId}`,
             method: "DELETE",
             success: () => {
                 alert("Equipment deleted successfully.");
@@ -176,37 +176,41 @@ $("#saveEquipment").on("click", function () {
     var assignedStaff = $("#staffDetails").val();
     var assignedField = $("#fieldDetails").val();
 
+    // Validate required fields
     if (!equipmentId || !equipmentName || !equipmentType || !equipmentStatus || !assignedStaff || !assignedField) {
         alert("All fields are required.");
         return;
     }
 
-    var formData = new FormData();
-    formData.append("equipmentId", equipmentId);
-    formData.append("name", equipmentName);
-    formData.append("equipmentType", equipmentType);
-    formData.append("status", equipmentStatus);
-    formData.append("assignedStaffDetails", assignedStaff);
-    formData.append("assignedFieldDetails", assignedField);
+    // Prepare JSON data
+    var data = {
+        equipmentId: equipmentId,
+        name: equipmentName,
+        equipmentType: equipmentType,
+        status: equipmentStatus,
+        assignedStaffDetails: assignedStaff,
+        assignedFieldDetails: assignedField,
+    };
 
+    // Send AJAX request
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/equ",
+        url: "http://localhost:8080/api/v1/equipment",
         type: "POST",
-        processData: false,
-        contentType: false,
-        data: formData,
+        contentType: "application/json",
+        data: JSON.stringify(data), // Convert data to JSON string
         success: (response) => {
             console.log("Equipment added successfully:", response);
             alert("Equipment added successfully!");
-            clearEquipmentFields();
-            refreshEquipmentTable();
+            clearEquipmentFields(); // Clear input fields
+            refreshEquipmentTable(); // Refresh the equipment table
         },
         error: (error) => {
             console.error("Error adding equipment:", error);
             alert("Failed to add equipment. Please try again.");
-        }
+        },
     });
 });
+
 
 function clearEquipmentFields() {
     $("#equipmentId").val("");
@@ -224,7 +228,7 @@ function refreshEquipmentTable() {
 setfieldId();
 function setfieldId() {
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/field",
+        url: "http://localhost:8080/api/v1/field",
         type: "GET",
         success: function (response) {
             if (Array.isArray(response)) {
@@ -263,7 +267,7 @@ function setfieldId() {
 setStaffId();
 function setStaffId() {
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/staff",
+        url: "http://localhost:8080/api/v1/staff",
         type: "GET",
         success: function (response) {
             if (Array.isArray(response)) {
@@ -300,18 +304,21 @@ function setStaffId() {
 }
 
 document.getElementById("equUpdateBtn").addEventListener("click", function () {
+    // Collect input values
     const equId = $("#editEquipmentId").val();
-    const equName =$("#editEquipmentName").val();
-    const equType =$("#editEquipmentType").val();
+    const equName = $("#editEquipmentName").val();
+    const equType = $("#editEquipmentType").val();
     const equStatus = $("#editEquipmentStatus").val();
-    const equStaff =$("#editStaffDetails").val();
-    const equField =$("#editFieldDetails").val();
+    const equStaff = $("#editStaffDetails").val();
+    const equField = $("#editFieldDetails").val();
 
+    // Validation
     if (!equId || !equName || !equType || !equStatus || !equStaff || !equField) {
-        alert("All Equipment are required!");
+        alert("All fields are required!");
         return;
     }
 
+    // Prepare JSON payload
     const formData = {
         equipmentId: equId,
         name: equName,
@@ -323,48 +330,26 @@ document.getElementById("equUpdateBtn").addEventListener("click", function () {
         },
     };
 
-
     console.log("Form data:", formData);
 
+    // AJAX request
     $.ajax({
-        url: `http://localhost:5050/green/api/v1/equ/${formData.equipmentId}`,
+        url: `http://localhost:8080/api/v1/equipment/${formData.equipmentId}`,
         type: "PUT",
         contentType: "application/json",
         data: JSON.stringify(formData),
         success: function () {
             alert("Equipment details updated successfully!");
-            document.getElementById("updateModal").style.display = "none";
+            $("#updateModal").modal("hide"); // Hide modal
+            // Optionally, refresh the equipment table or data here
         },
         error: function (xhr) {
             console.error("Error:", xhr.responseText || xhr.statusText);
-            alert(`Failed to update vehicle details. Error: ${xhr.responseText || xhr.statusText}`);
+            alert(`Failed to update equipment details. Error: ${xhr.responseText || xhr.statusText}`);
         },
     });
 });
 
-// function saveEquipmentDetails() {
-//     const updatedEquipment = {
-//         equipmentId: $("#editEquipmentId").val(),
-//         name: $("#editEquipmentName").val(),
-//         type: $("#editEquipmentType").val(),
-//         status: $("#editEquipmentStatus").val(),
-//         staffDetails: $("#editStaffDetails").val(),
-//         fieldDetails: $("#editFieldDetails").val(),
-//     };
-
-//     $.ajax({
-//         url: `http://localhost:8080/Bootstrap_POS_Backend_Phase_02/api/v1/equipment/${updatedEquipment.equipmentId}`,
-//         method: "PATCH",
-//         contentType: "application/json",
-//         data: JSON.stringify(updatedEquipment),
-//         success: () => {
-//             alert("Equipment updated successfully!");
-//             $("#viewEquipmentModal").modal("hide");
-//             loadEquipmentTable();
-//         },
-//         error: (xhr) => console.error("Failed to update equipment:", xhr.status),
-//     });
-// }
 
 $(document).ready(() => {
     loadEquipmentTable();

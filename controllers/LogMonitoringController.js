@@ -41,7 +41,7 @@ function loadLogTable() {
     $("#tblLog > tbody > tr").remove();
 
     $.ajax({
-        url: "http://localhost:8080/api/v1/log",
+        url: "http://localhost:8080/api/v1/logs",
         method: "GET",
         success: (logs) => {
             logs.forEach((log) => {
@@ -70,7 +70,7 @@ function loadLogTable() {
 
 function viewLogDetails(logCode) {
     $.ajax({
-        url: `http://localhost:8080/api/v1/log/${logCode}`,
+        url: `http://localhost:8080/api/v1/logs/${logCode}`,
         method: "GET",
         success: (log) => {
             // Populate the modal fields with log data
@@ -101,7 +101,7 @@ function viewLogDetails(logCode) {
 function deleteLog(logCode) {
     if (confirm(`Are you sure you want to delete the log with code: ${logCode}?`)) {
         $.ajax({
-            url: `http://localhost:8080/api/v1/log/${logCode}`,
+            url: `http://localhost:8080/api/v1/logs/${logCode}`,
             method: "DELETE",
             success: () => {
                 alert(`Log with code ${logCode} has been deleted.`);
@@ -118,15 +118,13 @@ function deleteLog(logCode) {
 
 $("#saveLog").on("click", function () {
     // Get values from input fields
-    var logCode = $("#logCode").val();
-    var logDate = $("#logDate").val();
-    var logDetails = $("#logDetails").val();
-    var logField = $("#logField").val();
-    var logCrop = $("#logCrop").val();
-    var logStaff = $("#logStaff").val();
-
-    // Collect file input
-    var logImage = $("#logImage")[0].files[0];
+    const logCode = $("#logCode").val();
+    const logDate = $("#logDate").val();
+    const logDetails = $("#logDetails").val();
+    const logField = $("#logField").val();
+    const logCrop = $("#logCrop").val();
+    const logStaff = $("#logStaff").val();
+    const logImageFile = $("#logImage")[0].files[0];
 
     // Validate required inputs
     if (!logCode || !logDate || !logDetails || !logField || !logCrop || !logStaff) {
@@ -134,45 +132,64 @@ $("#saveLog").on("click", function () {
         return;
     }
 
-    if (!logImage) {
+    if (!logImageFile) {
         alert("Please upload an observation image.");
         return;
     }
 
-    // Create a FormData object for file upload
-    var formData = new FormData();
-    formData.append("logCode", logCode);
-    formData.append("date", logDate);
-    formData.append("observation", logDetails);
-    formData.append("observationImage", logImage);
-    formData.append("fieldCode", logField); // Ensure this matches your backend parameter
-    formData.append("cropCode", logCrop); // Ensure this matches your backend parameter
-    formData.append("staffId", logStaff);
+    // Function to convert image file to Base64
+    const convertImageToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]); // Extract Base64 without prefix
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    };
 
-    // Send AJAX POST request to the backend
-    $.ajax({
-        url: "http://localhost:5050/green/api/v1/mlog", // Backend endpoint
-        type: "POST",
-        processData: false,
-        contentType: false,
-        data: formData,
-        success: (response) => {
-            console.log("MonitorLog added successfully:", response);
-            alert("MonitorLog added successfully!");
-            clearLogFormFields();
-            loadLogTable(); // Reload table to reflect the new entry
-            $("#addLogModal").modal("hide"); // Close the modal
-        },
-        error: (xhr, status, error) => {
-            console.error("Error adding MonitorLog:", xhr.responseText || error);
-            if (xhr.responseText) {
-                alert("Failed to add MonitorLog: " + xhr.responseText);
-            } else {
-                alert("Failed to add MonitorLog. Please try again.");
-            }
-        },
-    });
+    // Process the image and send the request
+    convertImageToBase64(logImageFile)
+        .then((base64Image) => {
+            // Create JSON payload
+            const monitorLogDTO = {
+                logCode: logCode,
+                date: logDate,
+                observation: logDetails,
+                observationImage: base64Image, // Base64 encoded image
+                fieldCode: logField,
+                cropCode: logCrop,
+                staffId: logStaff,
+            };
+
+            // Send AJAX POST request to the backend
+            $.ajax({
+                url: "http://localhost:8080/api/v1/logs", // Backend endpoint
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(monitorLogDTO),
+                success: (response) => {
+                    console.log("MonitorLog added successfully:", response);
+                    alert("MonitorLog added successfully!");
+                    clearLogFormFields();
+                    loadLogTable(); // Reload table to reflect the new entry
+                    $("#addLogModal").modal("hide"); // Close the modal
+                },
+                error: (xhr, status, error) => {
+                    console.error("Error adding MonitorLog:", xhr.responseText || error);
+                    if (xhr.responseText) {
+                        alert("Failed to add MonitorLog: " + xhr.responseText);
+                    } else {
+                        alert("Failed to add MonitorLog. Please try again.");
+                    }
+                },
+            });
+        })
+        .catch((error) => {
+            console.error("Error converting image to Base64:", error);
+            alert("Failed to process the image. Please try again.");
+        });
 });
+
 
 document.getElementById("btnLogUpdate").addEventListener("click", function () {
     // Gather form values
@@ -182,7 +199,8 @@ document.getElementById("btnLogUpdate").addEventListener("click", function () {
     const logField = $("#editLogField").val();
     const logCrop = $("#editLogCrop").val();
     const logStaff = $("#editLogStaff").val();
-    const logImage = $("#editLogImage")[0].files[0];
+    const logImage = $("#editLogImage")[0].files[0]; // New image file
+    const existingImageBase64 = $("#imageUpdateLogView img").attr("src"); // Existing Base64 image
 
     // Validate required fields
     if (!logCode || !logDate || !logDetails || !logField || !logCrop || !logStaff) {
@@ -190,36 +208,58 @@ document.getElementById("btnLogUpdate").addEventListener("click", function () {
         return;
     }
 
-    const formData = new FormData();
-    formData.append("logCode", logCode);
-    formData.append("date", logDate);
-    formData.append("observation", logDetails);
-    formData.append("fieldCode", logField);
-    formData.append("cropCode", logCrop);
-    formData.append("staffId", logStaff);
+    // Convert the uploaded file or use the existing Base64
+    const convertImageToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                resolve(null); // No new image provided
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]); // Extract Base64 part
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    };
 
-    if (logImage) {
-        formData.append("observationImage", logImage);
-    }
+    const processImage = logImage
+        ? convertImageToBase64(logImage) // Convert new file
+        : Promise.resolve(existingImageBase64 ? existingImageBase64.split(",")[1] : null); // Use existing Base64 or null
 
-    // Send AJAX PUT request
-    $.ajax({
-        url: `http://localhost:5050/green/api/v1/mlog/${logCode}`,
-        type: "PUT",
-        processData: false,
-        contentType: false,
-        data: formData,
-        success: function () {
-            alert("Log details updated successfully!");
-            $("#viewLogModal").modal("hide"); // Hide modal on success
-        },
-        error: function (xhr) {
-            console.error("Error:", xhr.responseText || xhr.statusText);
-            alert(`Failed to update log details. Error: ${xhr.responseText || xhr.statusText}`);
-        },
-    });
+    processImage
+        .then((base64Image) => {
+            // Prepare JSON payload
+            const updateLogDTO = {
+                logCode: logCode,
+                date: logDate,
+                observation: logDetails,
+                fieldCode: logField,
+                cropCode: logCrop,
+                staffId: logStaff,
+                observationImage: base64Image, // Base64 image string or null
+            };
+
+            // Send the update request
+            $.ajax({
+                url: `http://localhost:8080/api/v1/logs/${logCode}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(updateLogDTO),
+                success: function () {
+                    alert("Log details updated successfully!");
+                    $("#viewLogModal").modal("hide"); // Hide modal on success
+                },
+                error: function (xhr) {
+                    console.error("Error:", xhr.responseText || xhr.statusText);
+                    alert(`Failed to update log details. Error: ${xhr.responseText || xhr.statusText}`);
+                },
+            });
+        })
+        .catch((error) => {
+            console.error("Error converting image to Base64:", error);
+            alert("Failed to process the image. Please try again.");
+        });
 });
-
 
 // Function to clear input fields
 function clearLogFormFields() {
@@ -237,7 +277,7 @@ function clearLogFormFields() {
 function deleteLog(code) {
     if (confirm("Are you sure you want to delete this log?")) {
         $.ajax({
-            url: `http://localhost:8080/api/v1/log/${code}`,
+            url: `http://localhost:8080/api/v1/logs/${code}`,
             method: "DELETE",
             success: () => {
                 alert("Log deleted successfully!");
@@ -250,7 +290,7 @@ function deleteLog(code) {
 
 function LogIdGenerate() {
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/mlog", // API endpoint to fetch logs
+        url: "http://localhost:8080/api/v1/logs", // API endpoint to fetch logs
         type: "GET",
         success: function (response) {
             try {

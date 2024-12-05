@@ -69,6 +69,7 @@ function loadVehicleTable() {
 
 // Attach event listener to the Update button in the modal
 document.getElementById("updateVehicleBtn").addEventListener("click", function () {
+    // Collect input values from the edit vehicle form
     const vehCode = $("#editVehicleCode").val();
     const vehPlatNum = $("#editLicensePlate").val();
     const vehCat = $("#editVehicleCategory").val();
@@ -83,8 +84,8 @@ document.getElementById("updateVehicleBtn").addEventListener("click", function (
         return;
     }
 
-    // Prepare data for the PUT request
-    const formData = {
+    // Prepare data as a JavaScript object for the PUT request
+    const vehicleData = {
         code: vehCode,
         licensePlateNum: vehPlatNum,
         category: vehCat,
@@ -94,14 +95,14 @@ document.getElementById("updateVehicleBtn").addEventListener("click", function (
         staffId: vehStaff,
     };
 
-    console.log("Updating Vehicle with Data:", formData);
+    console.log("Updating Vehicle with Data:", vehicleData);
 
-    // Make the PUT request
+    // Make the PUT request using the JSON data
     $.ajax({
-        url: `http://localhost:5050/green/api/v1/veh/${formData.code}`,
+        url: `http://localhost:8080/api/v1/vehicle/${vehicleData.code}`,
         type: "PUT",
-        contentType: "application/json",
-        data: JSON.stringify(formData),
+        contentType: "application/json",  // Indicating the content type is JSON
+        data: JSON.stringify(vehicleData), // Convert the object to a JSON string
         success: function () {
             alert("Vehicle details updated successfully!");
             // Hide the modal after successful update
@@ -116,10 +117,11 @@ document.getElementById("updateVehicleBtn").addEventListener("click", function (
     });
 });
 
+
 function loadTable() {
     // Fetch data from the backend API
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/veh",
+        url: "http://localhost:8080/api/v1/vehicle",
         type: "GET",
         contentType: "application/json",
         success: (response) => {
@@ -179,7 +181,7 @@ function populateVehicleTable(vehicleList) {
 function viewVehicleDetails(vehicleCode) {
     // Fetch the vehicle details from the backend using the vehicle code
     $.ajax({
-        url: `http://localhost:5050/green/api/v1/veh/${vehicleCode}`,
+        url: `http://localhost:8080/api/v1/vehicle/${vehicleCode}`,
         type: "GET",
         contentType: "application/json",
         success: (response) => {
@@ -217,7 +219,7 @@ function viewVehicleDetails(vehicleCode) {
 function deleteVehicle(code) {
     if (confirm("Are you sure you want to delete this vehicle?")) {
         $.ajax({
-            url: `http://localhost:5050/green/api/v1/veh/${code}`,
+            url: `http://localhost:8080/api/v1/vehicle/${code}`,
             type: "DELETE",
             success: () => {
                 alert("Vehicle deleted successfully!");
@@ -247,24 +249,30 @@ $("#saveVehicle").on("click", function () {
     const staff = $("#staffMember").val(); // Staff ID or name based on your system
     const remarks = $("#remarks").val();
 
-    // Create a FormData object for data submission
-    const formData = new FormData();
-    formData.append("code", code);
-    formData.append("licensePlateNum", liPlateNum);
-    formData.append("category", vehCat);
-    formData.append("fuelType", fuelType);
-    formData.append("status", status);
-    formData.append("remarks", remarks);
-    formData.append("staffId", staff); // Adjust field name as needed
+    // Validate required fields
+    if (!code || !liPlateNum || !vehCat || !fuelType || !status || !staff) {
+        alert("Please fill out all required fields.");
+        return;
+    }
 
-    // Send an AJAX POST request to the backend API
+    // Create a JSON object for vehicle data
+    const vehicleData = {
+        code: code,
+        licensePlateNum: liPlateNum,
+        category: vehCat,
+        fuelType: fuelType,
+        status: status,
+        remarks: remarks,
+        staffId: staff, // Adjust field name as needed
+    };
+
+    // Send an AJAX POST request with JSON payload
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/veh", // Backend API endpoint
+        url: "http://localhost:8080/api/v1/vehicle", // Backend API endpoint
         type: "POST",
-        processData: false, // Prevent automatic data processing
-        contentType: false, // Ensure correct content type
-        data: formData, // Include the form data
-        success: (response) => {
+        contentType: "application/json", // Send JSON data
+        data: JSON.stringify(vehicleData), // Convert the vehicle data to JSON string
+        success: function (response) {
             console.log("Vehicle added successfully:", response);
             alert("Vehicle added successfully!");
 
@@ -275,16 +283,17 @@ $("#saveVehicle").on("click", function () {
             // Optionally, refresh the vehicle table to show the new vehicle
             loadTable();
         },
-        error: (error) => {
+        error: function (error) {
             console.error("Error adding vehicle:", error);
             alert("Failed to add vehicle. Please try again.");
         }
     });
 });
 
+
 function VehicleIdGenerate() {
     $.ajax({
-        url: "http://localhost:5050/green/api/v1/veh", // API endpoint to fetch fields
+        url: "http://localhost:8080/api/v1/vehicle", // API endpoint to fetch fields
         type: "GET",
         success: function (response) {
             // Validate the response is an array
