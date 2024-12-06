@@ -1,15 +1,9 @@
-const logCodeRegEx = /^L[0-9]{3}$/;
+const logCodeRegEx = /^LOG-\d{4}$/;
 const logDetailsRegEx = /^[A-Za-z0-9 ,.!?]{3,200}$/;
-const logFieldRegEx = /^[A-Za-z0-9 ]+$/;
-const logCropRegEx = /^[A-Za-z ]+$/;
-const logStaffRegEx = /^[A-Za-z ]+$/;
 
 let logValidations = [
     { reg: logCodeRegEx, field: $("#logCode"), error: "Log Code Pattern: L001" },
-    { reg: logDetailsRegEx, field: $("#logDetails"), error: "Details: 3-200 alphanumeric characters" },
-    { reg: logFieldRegEx, field: $("#logField"), error: "Field: Alphanumeric only" },
-    { reg: logCropRegEx, field: $("#logCrop"), error: "Crop: Alphabetic only" },
-    { reg: logStaffRegEx, field: $("#logStaff"), error: "Staff: Alphabetic only" },
+    { reg: logDetailsRegEx, field: $("#logDetails"), error: "Details: 3-200 alphanumeric characters" }
 ];
 
 function checkLogValidity() {
@@ -22,7 +16,6 @@ function checkLogValidity() {
             setError(validation.field, validation.error);
         }
     }
-    $("#saveLog").attr("disabled", errorCount > 0);
 }
 
 function check(regex, field) {
@@ -58,11 +51,11 @@ function loadLogTable() {
                 let row = `
                     <tr>
                         <td>${log.logCode}</td>
-                        <td>${log.logDate}</td>
-                        <td>${log.logDetails}</td>
-                        <td>${log.field}</td>
-                        <td>${log.crop}</td>
-                        <td>${log.staff}</td>
+                        <td>${log.date}</td>
+                        <td>${log.observation}</td>
+                        <td>${log.fieldDTO}</td>
+                        <td>${log.staffDTO}</td>
+                        <td>${log.cropDTO}</td>
                         <td>
                             <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewLogModal" 
                                 onclick="viewLogDetails('${log.logCode}')">View More</button>
@@ -95,11 +88,11 @@ function viewLogDetails(logCode) {
         success: (log) => {
             // Populate the modal fields with log data
             $("#editLogCode").val(log.logCode);
-            $("#editLogDate").val(log.logDate);
-            $("#editLogDetails").val(log.logDetails);
-            $("#editLogField").val(log.field);
-            $("#editLogCrop").val(log.crop);
-            $("#editLogStaff").val(log.staff);
+            $("#editLogDate").val(log.date);
+            $("#editLogDetails").val(log.observation);
+            $("#editLogField").val(log.fieldDTO);
+            $("#editLogCrop").val(log.staffDTO);
+            $("#editLogStaff").val(log.cropDTO);
 
             // Set the image source if available
             if (log.logImage) {
@@ -146,87 +139,117 @@ function deleteLog(logCode) {
 }
 
 
-$("#saveLog").on("click", function () {
-    // Get values from input fields
-    const logCode = $("#logCode").val();
+$("#saveLog").on("click", async function () {
+    const logCode = $("#logsCode").val();
     const logDate = $("#logDate").val();
-    const logDetails = $("#logDetails").val();
-    const logField = $("#logField").val();
-    const logCrop = $("#logCrop").val();
-    const logStaff = $("#logStaff").val();
-    const logImageFile = $("#logImage")[0].files[0];
+    const observation = $("#logDetails").val();
+    const relevantFields = $("#logField").val();
+    const relevantCrops = $("#logCrop").val();
+    const staffMember = $("#logStaff").val();
+    const observedImage = $("#logImage")[0].files[0];
 
-    // Validate required inputs
-    if (!logCode || !logDate || !logDetails || !logField || !logCrop || !logStaff) {
-        alert("Please fill out all required fields.");
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
         return;
     }
 
-    if (!logImageFile) {
-        alert("Please upload an observation image.");
-        return;
+    const fetchData = async (url) => {
+        try {
+            const response = await $.ajax({
+                url,
+                method: "GET",
+                timeout: 0,
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + token,
+                },
+            });
+            return response;
+        } catch (error) {
+            if (error.status === 403) {
+                alert("Access Denied: You do not have permission to perform this action.");
+            } else {
+                console.error(`Error fetching data from ${url}:`, error);
+                alert("Failed to load data. Please try again later.");
+            }
+            return null;
+        }
+    };
+
+    // Fetch related data
+    let newFieldDTO = null;
+    let newCropDTO = null;
+    let newStaffDTO = null;
+
+    if (relevantFields) {
+        newFieldDTO = await fetchData(`http://localhost:8080/api/v1/field/${relevantFields}`);
     }
 
-    // Function to convert image file to Base64
-    const convertImageToBase64 = (file) => {
+    if (relevantCrops) {
+        newCropDTO = await fetchData(`http://localhost:8080/api/v1/crop/${relevantCrops}`);
+    }
+
+    if (staffMember) {
+        newStaffDTO = await fetchData(`http://localhost:8080/api/v1/staff/${staffMember}`);
+    }
+
+    // Read image as Base64
+    const readImageAsBase64 = (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(",")[1]); // Extract Base64 without prefix
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
             reader.onerror = (error) => reject(error);
             reader.readAsDataURL(file);
         });
     };
 
-    // Process the image and send the request
-    convertImageToBase64(logImageFile)
-        .then((base64Image) => {
-            // Create JSON payload
-            const monitorLogDTO = {
-                logCode: logCode,
-                date: logDate,
-                observation: logDetails,
-                observationImage: base64Image, // Base64 encoded image
-                fieldCode: logField,
-                cropCode: logCrop,
-                staffId: logStaff,
-            };
+    let base64Image = null;
+    if (observedImage) {
+        try {
+            base64Image = await readImageAsBase64(observedImage);
+        } catch (error) {
+            console.error("Error reading image file:", error);
+            alert("Failed to process image. Please try again.");
+            return;
+        }
+    }
 
-            const token = localStorage.getItem("token");
-            if (!token) {
-                alert("No token found. Please log in.");
-                return;
-            }
-            $.ajax({
-                url: "http://localhost:8080/api/v1/logs", // Backend endpoint
-                type: "POST",
-                timeout: 0,
-                headers: {
-                    "Content-Type": "application/json",
-                    'Authorization': 'Bearer ' + token
-                },
-                data: JSON.stringify(monitorLogDTO),
-                success: (response) => {
-                    console.log("MonitorLog added successfully:", response);
-                    alert("MonitorLog added successfully!");
-                    clearLogFormFields();
-                    loadLogTable(); // Reload table to reflect the new entry
-                    $("#addLogModal").modal("hide"); // Close the modal
-                },
-                error: (xhr, status, error) => {
-                    console.error("Error adding MonitorLog:", xhr.responseText || error);
-                    if (xhr.responseText) {
-                        alert("Failed to add MonitorLog: " + xhr.responseText);
-                    } else {
-                        alert("Failed to add MonitorLog. Please try again.");
-                    }
-                },
-            });
-        })
-        .catch((error) => {
-            console.error("Error converting image to Base64:", error);
-            alert("Failed to process the image. Please try again.");
+    // Construct request data
+    const requestData = {
+        logCode: logCode,
+        date: logDate,
+        observation: observation,
+        observationImage: base64Image,
+        fieldDTO: newFieldDTO,
+        staffDTO: newStaffDTO,
+        cropDTO: newCropDTO,
+    };
+
+    console.log("Request data:", requestData);
+
+    // Save log data
+    try {
+        const response = await $.ajax({
+            url: "http://localhost:8080/api/v1/logs",
+            method: "POST",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token,
+            },
+            data: JSON.stringify(requestData),
         });
+
+        console.log("Log saved successfully:", response);
+        alert("Log saved successfully!");
+        loadLogTable();
+    } catch (error) {
+        console.error("Error saving log:", error);
+        alert("Failed to save log. Please try again.");
+    }
 });
+
 
 
 document.getElementById("btnLogUpdate").addEventListener("click", function () {
@@ -318,40 +341,15 @@ function clearLogFormFields() {
     $("#logImage").val("");
 }
 
-
-
-function deleteLog(code) {
-    if (confirm("Are you sure you want to delete this log?")) {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            alert("No token found. Please log in.");
-            return;
-        }
-        $.ajax({
-            url: `http://localhost:8080/api/v1/logs/${code}`,
-            method: "DELETE",
-            timeout: 0,
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': 'Bearer ' + token
-            },
-            success: () => {
-                alert("Log deleted successfully!");
-                loadLogTable();
-            },
-            error: (xhr) => console.error("Failed to delete log:", xhr.status),
-        });
-    }
-}
-
 function LogIdGenerate() {
+    console.log("Generating log id");
     const token = localStorage.getItem("token");
     if (!token) {
         alert("No token found. Please log in.");
         return;
     }
     $.ajax({
-        url: "http://localhost:8080/api/v1/logs", // API endpoint to fetch logs
+        url: "http://localhost:8080/api/v1/logs",
         type: "GET",
         timeout: 0,
         headers: {
@@ -360,42 +358,36 @@ function LogIdGenerate() {
         },
         success: function (response) {
             try {
-                // Validate response as an array
                 if (Array.isArray(response) && response.length > 0) {
-                    // Sort by logCode in ascending order
                     response.sort((a, b) => a.logCode.localeCompare(b.logCode));
 
-                    // Get the last log from the sorted array
                     const lastLog = response[response.length - 1];
 
-                    // Check if logCode exists and follows the expected format
                     if (lastLog && lastLog.logCode) {
                         const lastLogCode = lastLog.logCode;
 
-                        // Split the logCode by '-' and extract the numeric part
                         const logParts = lastLogCode.split('-');
                         if (logParts.length === 2 && !isNaN(logParts[1])) {
                             const lastNumber = parseInt(logParts[1], 10);
 
-                            // Generate the next ID
                             const nextId = `LOG-${String(lastNumber + 1).padStart(4, '0')}`;
-                            $("#logCode").val(nextId);
-                            return; // Successfully generated ID
+                            $("#logsCode").val(nextId);
+                            console.log(nextId);
+                            return;
                         }
                     }
                 }
-
-                // If response is empty or logCode is invalid, set default ID
-                $("#logCode").val("LOG-0001");
+                console.log("ERROR");
+                $("#logsCode").val("LOG-0001");
             } catch (error) {
                 console.error("Error processing response:", error);
-                $("#logCode").val("LOG-0001"); // Fallback to default ID
+                $("#logsCode").val("LOG-0001");
             }
         },
         error: function (xhr, status, error) {
             console.error("Error fetching last log ID:", error);
             alert("Unable to fetch the last log ID. Using default ID.");
-            $("#logCode").val("LOG-0001"); // Fallback to default ID
+            $("#logCode").val("LOG-0001");
         }
     });
 }
@@ -404,6 +396,7 @@ LogIdGenerate();
 
 $(document).ready(() => {
     loadLogTable();
+    LogIdGenerate(); 
 
     $("#logCode, #logDetails, #logField, #logCrop, #logStaff").on("keyup blur", checkLogValidity);
 });
@@ -420,3 +413,8 @@ function extractImageData(input) {
     }
     return Promise.resolve(null); // No image uploaded
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    LogIdGenerate();
+});

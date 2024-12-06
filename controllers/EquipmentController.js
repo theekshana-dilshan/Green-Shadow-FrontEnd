@@ -22,7 +22,6 @@ function checkEquipmentValidity() {
             setError(validation.field, validation.error);
         }
     }
-    $("#saveEquipment").attr("disabled", errorCount > 0);
 }
 
 function check(regex, field) {
@@ -78,12 +77,12 @@ function loadEquipmentTable() {
             equipmentList.forEach((equipment) => {
                 let row = `
                     <tr>
-                        <td>${equipment.equipmentId}</td>
+                        <td>${equipment.EquipmentId}</td>
                         <td>${equipment.name}</td>
                         <td>${equipment.equipmentType}</td>
                         <td>${equipment.status}</td>
-                        <td>${equipment.assignedStaffDetails}</td>
-                        <td>${equipment.assignedFieldDetails}</td>
+                        <td>${equipment.staff.id || 'N/A' }</td>
+                        <td>${equipment.field.fieldCode || 'N/A'}</td>
                         <td>
                             <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewEquipmentModal" 
                                 onclick="viewEquipmentDetails('${equipment.equipmentId}')">View More</button>
@@ -119,14 +118,13 @@ function viewEquipmentDetails(equipmentId) {
                 return;
             }
 
-            console.log(equipment);
 
-            $("#editEquipmentId").val(equipment.equipmentId);
+            $("#editEquipmentId").val(equipment.EquipmentId);
             $("#editEquipmentName").val(equipment.name);
             $("#editEquipmentType").val(equipment.equipmentType || "N/A");
             $("#editEquipmentStatus").val(equipment.status || "N/A");
-            $("#editStaffDetails").val(equipment.assignedStaffDetails || "N/A");
-            $("#editFieldDetails").val(equipment.assignedFieldDetails || "N/A");
+            $("#editStaffDetails").val(equipment.staff.id || "N/A");
+            $("#editFieldDetails").val(equipment.field.fieldCode || "N/A");
         },
         error: (xhr, status, error) => {
             console.error("Error fetching equipment details:", error);
@@ -162,58 +160,122 @@ function deleteEquipment(equipmentId) {
     }
 }
 
-$("#saveEquipment").on("click", function () {
-    var equipmentId = $("#equipmentId").val();
-    var equipmentName = $("#equipmentName").val();
-    var equipmentType = $("#equipmentType").val();
-    var equipmentStatus = $("#equipmentStatus").val();
-    var assignedStaff = $("#staffDetails").val();
-    var assignedField = $("#fieldDetails").val();
 
-    if (!equipmentId || !equipmentName || !equipmentType || !equipmentStatus || !assignedStaff || !assignedField) {
+$("#saveEquipment").on("click", async function () {
+    await saveEquipment();
+});
+
+async function fetchField(fieldId) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        throw new Error("No token found.");
+    }
+
+    try {
+        const field = await $.ajax({
+            url: `http://localhost:8080/api/v1/field/${fieldId}`,
+            method: "GET",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token,
+            },
+        });
+        return field;
+    } catch (error) {
+        console.error("Error fetching field data:", error);
+        alert("Failed to load field data. Please try again.");
+        throw error;
+    }
+}
+
+async function fetchStaff(staffId) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        throw new Error("No token found.");
+    }
+
+    try {
+        const staff = await $.ajax({
+            url: `http://localhost:8080/api/v1/staff/${staffId}`,
+            method: "GET",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token,
+            },
+        });
+        return staff;
+    } catch (error) {
+        console.error("Error fetching staff data:", error);
+        alert("Failed to load staff data. Please try again.");
+        throw error;
+    }
+}
+
+async function saveEquipment() {
+    const equipmentId = $("#equipmentIdfeild").val();
+    const equipmentName = $("#equipmentName").val();
+    const equipmentType = $("#equipmentType").val();
+    const equipmentStatus = $("#equipmentStatus").val();
+    const staffId = $("#staffDetails").val();
+    const fieldId = $("#fieldId").val();
+
+    if (!equipmentId || !equipmentName || !equipmentType || !equipmentStatus) {
         alert("All fields are required.");
         return;
     }
 
-    var data = {
-        equipmentId: equipmentId,
-        name: equipmentName,
-        equipmentType: equipmentType,
-        status: equipmentStatus,
-        assignedStaffDetails: assignedStaff,
-        assignedFieldDetails: assignedField,
-    };
+    try {
+        const field = await fetchField(fieldId);
+        const staff = await fetchStaff(staffId);
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-        alert("No token found. Please log in.");
-        return;
+        console.log(field);
+        console.log(staff);
+
+        const data = {
+            equipmentId: equipmentId,
+            name: equipmentName,
+            equipmentType: equipmentType,
+            status: equipmentStatus,
+            staff: staff,
+            field: field,
+        };
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
+
+        const response = await $.ajax({
+            url: "http://localhost:8080/api/v1/equipment",
+            method: "POST",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token,
+            },
+            data: JSON.stringify(data),
+        });
+
+        console.log("Equipment added successfully:", response);
+        alert("Equipment added successfully!");
+        clearEquipmentFields();
+        refreshEquipmentTable();
+        EquipmetIdGenerate();
+    } catch (error) {
+        console.error("Error saving equipment:", error);
+        alert("Failed to save equipment. Please try again.");
     }
-    $.ajax({
-        url: "http://localhost:8080/api/v1/equipment",
-        type: "POST",
-        timeout: 0,
-        headers: {
-            "Content-Type": "application/json",
-            'Authorization': 'Bearer ' + token
-        },
-        data: JSON.stringify(data),
-        success: (response) => {
-            console.log("Equipment added successfully:", response);
-            alert("Equipment added successfully!");
-            clearEquipmentFields();
-            refreshEquipmentTable();
-        },
-        error: (error) => {
-            console.error("Error adding equipment:", error);
-            alert("Failed to add equipment. Please try again.");
-        },
-    });
-});
+}
+
+
 
 
 function clearEquipmentFields() {
-    $("#equipmentId").val("");
     $("#equipmentName").val("");
     $("#equipmentType").val("");
     $("#equipmentStatus").val("");
@@ -225,7 +287,6 @@ function refreshEquipmentTable() {
     loadEquipmentTable();
 }
 
-EquipmetIdGenerate();
 function EquipmetIdGenerate() {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -242,7 +303,7 @@ function EquipmetIdGenerate() {
         },
         success: function (response) {
             if (Array.isArray(response) && response.length > 0) {
-                response.sort((a, b) => a.id.localeCompare(b.id));
+                response.sort((a, b) => a.EquipmentId.localeCompare(b.EquipmentId));
 
                 const lastEquipmet = response[response.length - 1];
 
@@ -254,18 +315,18 @@ function EquipmetIdGenerate() {
                         const lastNumber = parseInt(lastIdParts[1], 10);
 
                         const nextId = `EQUIPMENT-${String(lastNumber + 1).padStart(4, '0')}`;
-                        $("#equipmentId").val(nextId);
+                        $("#equipmentIdfeild").val(nextId);
                         return;
                     }
                 }
             }
-
-            $("equipmentId").val("EQUIPMENT-0001");
+            console.log("Equipment cdcs")
+            $("#equipmentIdfeild").val("EQUIPMENT-0001");
         },
         error: function (xhr, status, error) {
             console.error("Error fetching last equipment ID:", error);
             alert("Unable to fetch the last equipment ID. Using default ID.");
-            $("equipmentId").val("EQUIPMENT-0001");
+            $("equipmentIdfeild").val("EQUIPMENT-0001");
         }
     });
 }
@@ -394,8 +455,6 @@ document.getElementById("equUpdateBtn").addEventListener("click", function () {
         },
     };
 
-    console.log("Form data:", formData);
-
     const token = localStorage.getItem("token");
     if (!token) {
         alert("No token found. Please log in.");
@@ -424,6 +483,11 @@ document.getElementById("equUpdateBtn").addEventListener("click", function () {
 
 
 $(document).ready(() => {
-    loadEquipmentTable();
+    EquipmetIdGenerate();
     $("#equipmentId, #equipmentName, #equipmentType, #equipmentStatus, #staffDetails, #fieldDetails").on("keyup blur", checkEquipmentValidity);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadEquipmentTable();
+    EquipmetIdGenerate();
 });

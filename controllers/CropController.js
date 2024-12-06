@@ -1,11 +1,11 @@
-const cropCodeRegEx = /^C[0-9]{3}$/;
+const cropCodeRegEx = /^CROP-\d{4}$/;
 const cropNameRegEx = /^[A-Za-z ]{3,50}$/;
 const cropCategoryRegEx = /^[A-Za-z ]+$/;
 const cropSeasonRegEx = /^[A-Za-z ]+$/;
-const cropFieldRegEx = /^[A-Za-z0-9 ]+$/;
+const cropFieldRegEx = /^FIELD-\d{4}$/;
 
 let cropValidations = [
-    { reg: cropCodeRegEx, field: $("#cropCode"), error: "Crop Code Pattern: C001" },
+    { reg: cropCodeRegEx, field: $("#cropCode"), error: "Crop Code Pattern: CROP-0001" },
     { reg: cropNameRegEx, field: $("#cropCommonName"), error: "Name: 3-50 letters" },
     { reg: cropNameRegEx, field: $("#cropScientificName"), error: "Scientific Name: 3-50 letters" },
     { reg: cropCategoryRegEx, field: $("#cropCategory"), error: "Category: Alphabetic only" },
@@ -26,6 +26,7 @@ function checkCropValidity() {
     $("#saveCrop").attr("disabled", errorCount > 0);
 }
 
+
 function check(regex, field) {
     return regex.test(field.val());
 }
@@ -38,7 +39,15 @@ function setError(field, error) {
     field.css("border", "2px solid red").next().text(error);
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    loadCropTable();
+    cropIdGenerate();
+
+    $("#cropCode, #cropCommonName, #cropScientificName, #cropCategory, #cropSeason, #fieldDetails").on("keyup blur", checkCropValidity);
+});
+
 function loadCropTable() {
+
     $("#tblCrop > tbody > tr").remove();
 
     const token = localStorage.getItem("token");
@@ -63,10 +72,10 @@ function loadCropTable() {
                         <td>${crop.scientificName}</td>
                         <td>${crop.category}</td>
                         <td>${crop.season}</td>
-                        <td>${crop.fieldDTO}</td>
+                        <td>${crop.fieldDTO.fieldCode}</td>
                         <td>
                             <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewCropModal" 
-                                onclick="viewCropDetails('${crop.cropCode})">View More</button>
+                                onclick="viewCropDetails('${crop.cropCode}')">View More</button>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" onclick="deleteCrop('${crop.cropCode}')">Delete</button>
@@ -101,19 +110,22 @@ function viewCropDetails(cropCode) {
                 return;
             }
 
-            console.log(crop)
 
-            $("#editCropCode").text(crop.cropCode);
-            $("#editCropCommonName").text(crop.commonName);
-            $("#editCropScientificName").text(crop.scientificName || "N/A");
+            $("#editCropCode").val(crop.cropCode);
+            $("#editCropCommonName").val(crop.commonName);
+            $("#editCropScientificName").val(crop.scientificName || "N/A");
             $("#imageView").html(`<img src="data:image/png;base64,${crop.image}" alt="Crop Image" style="width: 150px; height: 100px;">`);
-            $("#editCropCategory").text(crop.category || "N/A");
-            $("#editCropSeason").text(crop.season || "N/A");
-            $("#editCropField").text(crop.field_code?.fieldCode || "N/A");
+            $("#editCropCategory").val(crop.category || "N/A");
+            $("#editCropSeason").val(crop.season || "N/A");
+            $("#editCropField").val(crop.fieldDTO.fieldCode || "N/A");
         },
         error: (xhr, status, error) => {
-            console.error("Error fetching crop details:", error);
-            alert("Failed to fetch crop details. Please try again.");
+            if (error.status === 403) {
+                alert("Access Denied: You do not have permission to perform this action.");
+            }else{
+                console.error("Error fetching crop details:", error);
+                alert("Failed to fetch crop details. Please try again.");
+            }
         }
     });
 }
@@ -148,26 +160,6 @@ window.onclick = function(event) {
     }
 }
 
-// document.getElementById("fileInput").addEventListener("change", function (event) {
-//     const file = event.target.files[0]; // Get the selected file
-
-//     if (file) {
-//         const reader = new FileReader();
-
-//         // When the file is loaded, display it inside the div
-//         reader.onload = function (e) {
-//             const imageUpdateView = document.getElementById("imageUpdateView");
-//             imageUpdateView.innerHTML = '';
-//             const img = document.createElement("img");
-//             img.src = e.target.result;
-//             img.style.maxWidth = "100%";
-//             img.style.maxHeight = "100%";
-//             imageUpdateView.appendChild(img);
-//         };
-
-//         reader.readAsDataURL(file); // Convert the file to a data URL
-//     }
-// });
 
 function displaySelectedImage(event) {
     const file = event.target.files[0]; // Get the selected file
@@ -201,7 +193,8 @@ function populateCropDetails(code, commonName, scientificName, image, category, 
     $("#editCropField").val(field);
 }
 
-$("#saveCrop").on("click", function () {
+function saveCrop(){
+
     var cropCode = $("#cropCode").val();
     var cropName = $("#cropCommonName").val();
     var cropScientificName = $("#cropScientificName").val();
@@ -211,13 +204,8 @@ $("#saveCrop").on("click", function () {
 
     var cropImage = $("#cropImage")[0].files[0];
 
-    if (!cropCode || !cropName || !cropScientificName || !cropCategory || !cropSeason || !cropField) {
+    if (!cropCode || !cropName || !cropScientificName || !cropCategory || !cropSeason) {
         alert("All fields are required!");
-        return;
-    }
-
-    if (!cropImage) {
-        alert("Please select an image!");
         return;
     }
 
@@ -232,7 +220,7 @@ $("#saveCrop").on("click", function () {
             image: base64Image,
             category: cropCategory,
             season: cropSeason,
-            field_code: cropFieldDTO,
+            fieldDTO: {"fieldCode": cropField},
         };
 
 
@@ -255,10 +243,81 @@ $("#saveCrop").on("click", function () {
                 alert("Crop added successfully!");
                 clearFields();
                 cropIdGenerate();
+                loadCropTable();
             },
             error: (error) => {
-                console.error("Error adding crop:", error.responseText || error.statusText);
-                alert("Failed to add crop. Please try again.");
+                if (error.status === 403) {
+                    alert("Access Denied: You do not have permission to perform this action.");
+                }else{
+                    console.error("Error adding crop:", error.responseText || error.statusText);
+                    alert("Failed to add crop. Please try again.");
+                }
+            },
+        });
+    };
+
+    reader.readAsDataURL(cropImage);
+}
+
+document.getElementById("saveCrop").addEventListener("click", function () {
+
+    var cropCode = $("#cropCode").val();
+    var cropName = $("#cropCommonName").val();
+    var cropScientificName = $("#cropScientificName").val();
+    var cropCategory = $("#cropCategory").val();
+    var cropSeason = $("#cropSeason").val();
+    var cropField = $("#fieldDetails").val();
+
+    var cropImage = $("#cropImage")[0].files[0];
+
+    if (!cropCode || !cropName || !cropScientificName || !cropCategory || !cropSeason) {
+        alert("All fields are required!");
+        return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        var base64Image = e.target.result;
+
+        var formData = {
+            cropCode: cropCode,
+            commonName: cropName,
+            scientificName: cropScientificName,
+            image: base64Image,
+            category: cropCategory,
+            season: cropSeason,
+            fieldDTO: {"fieldCode": cropField},
+        };
+
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
+        }
+        $.ajax({
+            url: "http://localhost:8080/api/v1/crop",
+            type: "POST",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
+            data: JSON.stringify(formData),
+            success: (response) => {
+                console.log("Crop added successfully:", response);
+                alert("Crop added successfully!");
+                clearFields();
+                cropIdGenerate();
+                loadCropTable();
+            },
+            error: (error) => {
+                if (error.status === 403) {
+                    alert("Access Denied: You do not have permission to perform this action.");
+                }else{
+                    console.error("Error adding crop:", error.responseText || error.statusText);
+                    alert("Failed to add crop. Please try again.");
+                }
             },
         });
     };
@@ -266,8 +325,8 @@ $("#saveCrop").on("click", function () {
     reader.readAsDataURL(cropImage);
 });
 
-
 function cropIdGenerate() {
+    
     const token = localStorage.getItem("token");
     if (!token) {
         alert("No token found. Please log in.");
@@ -279,26 +338,42 @@ function cropIdGenerate() {
         timeout: 0,
         headers: {
             "Content-Type": "application/json",
-            'Authorization': 'Bearer ' + token
+            "Authorization": "Bearer " + token
         },
         success: function (response) {
             if (Array.isArray(response) && response.length > 0) {
+                // Sort crops based on cropCode to ensure last one is correct
+                response.sort((a, b) => {
+                    const aNumber = parseInt(a.cropCode.split('-')[1]);
+                    const bNumber = parseInt(b.cropCode.split('-')[1]);
+                    return aNumber - bNumber;
+                });
+
+                // Get the last crop code
                 const lastCrop = response[response.length - 1];
                 const lastCropCode = lastCrop.cropCode;
 
+                // Extract the numeric part of the crop code
                 const lastIdParts = lastCropCode.split('-');
-                const lastNumber = parseInt(lastIdParts[1]);
-                const nextId = `CROP-${String(lastNumber + 1).padStart(4, '0')}`;
+                if (lastIdParts.length === 2 && !isNaN(lastIdParts[1])) {
+                    const lastNumber = parseInt(lastIdParts[1], 10);
 
-                $("#cropCode").val(nextId);
+                    // Generate the next crop ID
+                    const nextId = `CROP-${String(lastNumber + 1).padStart(4, '0')}`;
+                    $("#cropCode").val(nextId);
+                } else {
+                    console.warn("Invalid crop code format:", lastCropCode);
+                    $("#cropCode").val("CROP-0001");
+                }
             } else {
+                // No crops found, start with the default ID
                 $("#cropCode").val("CROP-0001");
             }
         },
         error: function (xhr, status, error) {
-            console.error("Error fetching last Crop ID:", error);
+            console.error("Error fetching crops:", xhr.responseText || error);
             alert("Unable to fetch the last Crop ID. Using default ID.");
-            $("#cropCode").val('CROP-0001');
+            $("#cropCode").val("CROP-0001");
         }
     });
 }
@@ -324,26 +399,21 @@ function deleteCrop(cropCode) {
                 $(`#cropTable tbody tr`).filter(function () {
                     return $(this).find("td").eq(0).text().trim() === cropCode;
                 }).remove();
+                loadCropTable();
             },
             error: function (xhr, status, error) {
-                console.error("Error deleting crop:", error);
-                alert("Failed to delete the crop. Please try again.");
+                if (error.status === 403) {
+                    alert("Access Denied: You do not have permission to perform this action.");
+                }else{
+                    console.error("Error deleting crop:", error);
+                    alert("Failed to delete the crop. Please try again.");
+                }
             }
         });
     }
 }
 
-$(document).ready(() => {
-    cropIdGenerate();
-    loadCropTable();
-    $("#cropCode, #cropCommonName, #cropScientificName, #cropCategory, #cropSeason, #fieldDetails").on("keyup blur", checkCropValidity);
-});
-
-document.getElementById("changeImage").addEventListener("click", function () {
-    document.getElementById("editCropImage").click();
-});
-
-document.getElementById("cropUpdateBtn").addEventListener("click", function () {
+function updateCrop(){
     var cropCode = $("#editCropCode").val();
     var cropName = $("#editCropCommonName").val();
     var scientificName = $("#editCropScientificName").val();
@@ -386,12 +456,16 @@ document.getElementById("cropUpdateBtn").addEventListener("click", function () {
             },
             data: JSON.stringify(data),
             success: function (response) {
-                console.log("Success:", response);
                 alert("Crop updated successfully!");
+                loadCropTable();
             },
             error: function (xhr, status, error) {
-                console.error("Error response:", xhr.responseText || error);
-                alert(`Failed to update crop details. Error: ${xhr.responseText || error}`);
+                if (error.status === 403) {
+                    alert("Access Denied: You do not have permission to perform this action.");
+                }else{
+                    console.error("Error response:", xhr.responseText || error);
+                    alert(`Failed to update crop details. Error: ${xhr.responseText || error}`);
+                }
             },
         });
     }
@@ -410,7 +484,7 @@ document.getElementById("cropUpdateBtn").addEventListener("click", function () {
     } else {
         alert("No image provided!");
     }
-});
+};
 
 
 function base64ToBlob(base64Data) {
@@ -424,10 +498,6 @@ function base64ToBlob(base64Data) {
     }
     return new Blob([ab], { type: mimeString });
 }
-
-document.getElementById("changeImage").addEventListener("click", function () {
-    document.getElementById("editCropImage").click();
-});
 
 
 document.getElementById("editCropImage").addEventListener("change", function (event) {

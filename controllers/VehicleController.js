@@ -1,9 +1,9 @@
-const vehicleCodeRegEx = /^VEH-\d{4}$/;
+const vehicleCodeRegEx = /^VEHICLE-\d{4}$/;
 const licensePlateRegEx = /^[A-Z0-9 ]{5,10}$/;
 const vehicleCategoryRegEx = /^[A-Za-z ]{3,50}$/;
 const fuelTypeRegEx = /^[A-Za-z ]+$/;
 const statusRegEx = /^[A-Za-z ]+$/;
-const staffMemberRegEx = /^STF\d{3}$/;
+const staffMemberRegEx = /^STAFF-\d{4}$/;
 
 let vehicleValidations = [
     { reg: vehicleCodeRegEx, field: $("#vehicleCode"), error: "Vehicle Code Pattern: V001" },
@@ -39,43 +39,11 @@ function setError(field, error) {
     field.css("border", "2px solid red").next().text(error);
 }
 
-function loadVehicleTable() {
-    $("#tblVehicle > tbody > tr").remove();
+document.addEventListener('DOMContentLoaded', () => {
+    loadTable();
+    VehicleIdGenerate();
+});
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-        alert("No token found. Please log in.");
-        return;
-    }
-    $.ajax({
-        url: "http://localhost:8080/api/v1/vehicle",
-        method: "GET",
-        timeout: 0,
-        headers: {
-            "Content-Type": "application/json",
-            'Authorization': 'Bearer ' + token
-        },
-        success: (vehicles) => {
-            vehicles.forEach((vehicle) => {
-                let row = `
-                    <tr>
-                        <td>${vehicle.vehicleCode}</td>
-                        <td>${vehicle.licensePlate}</td>
-                        <td>${vehicle.category}</td>
-                        <td>${vehicle.fuelType}</td>
-                        <td>${vehicle.status}</td>
-                        <td>${vehicle.staffMember}</td>
-                        <td>${vehicle.remarks || "N/A"}</td>
-                        <td>
-                            <button class="btn btn-danger btn-sm" onclick="deleteVehicle('${vehicle.vehicleCode}')">Delete</button>
-                        </td>
-                    </tr>`;
-                $("#tblVehicle tbody").append(row);
-            });
-        },
-        error: (xhr) => console.error("Failed to load vehicles:", xhr.status),
-    });
-}
 
 // Attach event listener to the Update button in the modal
 document.getElementById("updateVehicleBtn").addEventListener("click", function () {
@@ -123,10 +91,9 @@ document.getElementById("updateVehicleBtn").addEventListener("click", function (
         data: JSON.stringify(vehicleData), // Convert the object to a JSON string
         success: function () {
             alert("Vehicle details updated successfully!");
-            // Hide the modal after successful update
             $("#viewVehicleModal").modal("hide");
-            // Optionally, refresh the table or UI to reflect changes
-            location.reload();
+            loadTable();
+            VehicleIdGenerate();
         },
         error: function (xhr) {
             console.error("Error:", xhr.responseText || xhr.statusText);
@@ -134,7 +101,6 @@ document.getElementById("updateVehicleBtn").addEventListener("click", function (
         },
     });
 });
-
 
 function loadTable() {
     const token = localStorage.getItem("token");
@@ -153,7 +119,7 @@ function loadTable() {
         success: (response) => {
             try {
                 if (Array.isArray(response)) {
-                    populateVehicleTable(response); // Pass the response to populate the table
+                    populateVehicleTable(response);
                 } else {
                     console.error("Expected an array, but received:", response);
                     alert("Failed to load vehicle data. Invalid response format.");
@@ -172,27 +138,26 @@ function loadTable() {
 function populateVehicleTable(vehicleList) {
     try {
         const tableBody = $("#tblVehicle tbody");
-        tableBody.empty(); // Clear existing rows
+        tableBody.empty();
 
-        // Loop through each vehicle object and create table rows
         vehicleList.forEach((veh) => {
             const row = `
                 <tr>
-                    <td>${veh.code || "N/A"}</td>
+                    <td>${veh.vehicleCode || "N/A"}</td>
                     <td>${veh.licensePlateNum || "N/A"}</td>
                     <td>${veh.category || "N/A"}</td>
                     <td>${veh.fuelType || "N/A"}</td>
                     <td>${veh.status || "N/A"}</td>
-                    <td>${veh.staffName || "N/A"}</td>
+                    <td>${veh.staff.id || "N/A"}</td>
                     <td>${veh.remarks || "N/A"}</td>
                     <td>
                         <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewVehicleModal" 
-                            onclick="viewVehicleDetails('${veh.code}')">
+                            onclick="viewVehicleDetails('${veh.vehicleCode}')">
                             Update
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-danger btn-sm" onclick="deleteVehicle('${veh.code}')">Delete</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteVehicle('${veh.vehicleCode}')">Delete</button>
                     </td>
                 </tr>
             `;
@@ -221,14 +186,14 @@ function viewVehicleDetails(vehicleCode) {
         success: (response) => {
             try {
                 // Check if response contains the expected vehicle details
-                if (response && response.code === vehicleCode) {
+                if (response && response.vehicleCode === vehicleCode) {
                     // Populate the modal fields with the vehicle details
-                    $("#editVehicleCode").val(response.code || "N/A");
+                    $("#editVehicleCode").val(response.vehicleCode || "N/A");
                     $("#editLicensePlate").val(response.licensePlateNum || "N/A");
                     $("#editVehicleCategory").val(response.category || "N/A");
                     $("#editFuelType").val(response.fuelType || "N/A");
                     $("#editVehicleStatus").val(response.status || "N/A");
-                    $("#editStaffMember").val(response.staffName || "N/A");
+                    $("#editStaffMember").val(response.staff.id || "N/A");
                     $("#editRemarks").val(response.remarks || "N/A");
                     
                     // Show the modal
@@ -250,7 +215,7 @@ function viewVehicleDetails(vehicleCode) {
 }
 
 
-function deleteVehicle(code) {
+function deleteVehicle(vehicleCode) {
     if (confirm("Are you sure you want to delete this vehicle?")) {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -258,7 +223,7 @@ function deleteVehicle(code) {
             return;
         }
         $.ajax({
-            url: `http://localhost:8080/api/v1/vehicle/${code}`,
+            url: `http://localhost:8080/api/v1/vehicle/${vehicleCode}`,
             type: "DELETE",
             timeout: 0,
             headers: {
@@ -267,7 +232,7 @@ function deleteVehicle(code) {
             },
             success: () => {
                 alert("Vehicle deleted successfully!");
-                loadTable(); // Refresh table after deletion
+                loadTable();
             },
             error: (xhr, status, error) => {
                 console.error("Error deleting vehicle:", error);
@@ -279,66 +244,85 @@ function deleteVehicle(code) {
 
 // Call the function to load the table on page load or as needed
 $(document).ready(() => {
-    loadTable();
+    
 });
 
-
-$("#saveVehicle").on("click", function () {
-    // Get values from the input fields in the Add Vehicle Modal
-    const code = $("#vehicleCode").val();
-    const liPlateNum = $("#licensePlate").val();
-    const vehCat = $("#vehicleCategory").val();
-    const fuelType = $("#fuelType").val();
-    const status = $("#status").val();
-    const staff = $("#staffMember").val(); // Staff ID or name based on your system
-    const remarks = $("#remarks").val();
-
-    // Validate required fields
-    if (!code || !liPlateNum || !vehCat || !fuelType || !status || !staff) {
-        alert("Please fill out all required fields.");
-        return;
-    }
-
-    // Create a JSON object for vehicle data
-    const vehicleData = {
-        code: code,
-        licensePlateNum: liPlateNum,
-        category: vehCat,
-        fuelType: fuelType,
-        status: status,
-        remarks: remarks,
-        staffId: staff, // Adjust field name as needed
-    };
-
+function fetchStaff(staffId, callback) {
     const token = localStorage.getItem("token");
     if (!token) {
         alert("No token found. Please log in.");
         return;
     }
     $.ajax({
-        url: "http://localhost:8080/api/v1/vehicle", // Backend API endpoint
-        type: "POST",
+        url: `http://localhost:8080/api/v1/staff/${staffId}`,
+        method: "GET",
         timeout: 0,
         headers: {
             "Content-Type": "application/json",
             'Authorization': 'Bearer ' + token
         },
-        data: JSON.stringify(vehicleData), // Convert the vehicle data to JSON string
-        success: function (response) {
-            console.log("Vehicle added successfully:", response);
-            alert("Vehicle added successfully!");
-
-            // Clear the form fields and close the modal
-            $("#addVehicleForm")[0].reset();
-            $("#addVehicleModal").modal("hide");
-
-            // Optionally, refresh the vehicle table to show the new vehicle
-            loadTable();
+        success: callback,
+        error: (error) => {
+            console.error("Error loading staff:", error);
+            alert("Failed to load staff data. Please try again.");
         },
-        error: function (error) {
-            console.error("Error adding vehicle:", error);
-            alert("Failed to add vehicle. Please try again.");
+    });
+}
+
+$("#saveVehicle").on("click", function () {
+    const vehicleId = $("#vehicleCode").val();
+    const licensePlateNumber = $("#licensePlate").val();
+    const category = $("#vehicleCategory").val();
+    const fuelType = $("#fuelType").val();
+    const status = $("#status").val();
+    const allocatedStaff = $("#staffMember").val();
+    const remarks = $("#remarks").val();
+
+    // Validate required fields
+    if (!vehicleId || !licensePlateNumber || !category || !fuelType || !status) {
+        alert("Please fill out all required fields.");
+        return;
+    }
+
+    fetchStaff(allocatedStaff, (staff) => {
+        const vehicleData = {
+            vehicleCode: vehicleId,
+            licensePlateNum: licensePlateNumber,
+            category: category,
+            fuelType: fuelType,
+            status: status,
+            remarks: remarks,
+            staff: staff,
+        };
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No token found. Please log in.");
+            return;
         }
+        $.ajax({
+            url: "http://localhost:8080/api/v1/vehicle", // Backend API endpoint
+            type: "POST",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
+            data: JSON.stringify(vehicleData), 
+            success: function (response) {
+                console.log("Vehicle added successfully:", response);
+                alert("Vehicle added successfully!");
+
+                $("#addVehicleModal").modal("hide");
+
+                loadTable();
+                VehicleIdGenerate();
+            },
+            error: function (error) {
+                console.error("Error adding vehicle:", error);
+                alert("Failed to add vehicle. Please try again.");
+            }
+        });
     });
 });
 
@@ -359,12 +343,12 @@ function VehicleIdGenerate() {
         },
         success: function (response) {
             if (Array.isArray(response) && response.length > 0) {
-                response.sort((a, b) => a.code.localeCompare(b.code));
+                response.sort((a, b) => a.vehicleCode.localeCompare(b.vehicleCode));
 
                 const lastField = response[response.length - 1];
 
-                if (lastField && lastField.code) {
-                    const lastFieldCode = lastField.code;
+                if (lastField && lastField.vehicleCode) {
+                    const lastFieldCode = lastField.vehicleCode;
 
                     const lastIdParts = lastFieldCode.split('-');
                     if (lastIdParts.length === 2 && !isNaN(lastIdParts[1])) {
@@ -386,7 +370,7 @@ function VehicleIdGenerate() {
     });
 }
 
-function deleteVehicle(code) {
+function deleteVehicle(vehicleCode) {
     if (confirm("Are you sure you want to delete this vehicle?")) {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -394,7 +378,7 @@ function deleteVehicle(code) {
             return;
         }
         $.ajax({
-            url: `http://localhost:8080/api/v1/vehicle/${code}`,
+            url: `http://localhost:8080/api/v1/vehicle/${vehicleCode}`,
             method: "DELETE",
             timeout: 0,
             headers: {
@@ -403,7 +387,7 @@ function deleteVehicle(code) {
             },
             success: () => {
                 alert("Vehicle deleted successfully!");
-                loadVehicleTable();
+                loadTable();
             },
             error: (xhr) => console.error("Failed to delete vehicle:", xhr.status),
         });
@@ -411,7 +395,5 @@ function deleteVehicle(code) {
 }
 
 $(document).ready(() => {
-    loadVehicleTable();
-
     $("#vehicleCode, #licensePlate, #vehicleCategory, #fuelType, #status, #staffMember").on("keyup blur", checkVehicleValidity);
 });

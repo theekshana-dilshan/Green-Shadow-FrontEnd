@@ -1,4 +1,4 @@
-const staffIdRegEx = /^S[0-9]{3}$/;
+const staffIdRegEx = /^STAFF-\d{4}$/;
 const nameRegEx = /^[A-Za-z ]{3,50}$/;
 const contactRegEx = /^[0-9]{10}$/;
 const emailRegEx = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -36,6 +36,11 @@ function setError(field, error) {
     field.css("border", "2px solid red").next().text(error);
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    loadStaffTable();
+    staffIdGenerate();
+});
+
 function loadStaffTable() {
     $("#tblStaff > tbody > tr").remove();
 
@@ -65,10 +70,10 @@ function loadStaffTable() {
                         <td>${staff.email}</td>
                         <td>
                             <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#viewStaffModal" 
-                                onclick="viewStaffDetails('${staff.staffId}')">View More</button>
+                                onclick="viewStaffDetails('${staff.id}')">View More</button>
                         </td>
                         <td>
-                            <button class="btn btn-danger btn-sm" onclick="deleteStaff('${staff.staffId}')">Delete</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteStaff('${staff.id}')">Delete</button>
                         </td>
                     </tr>`;
                 $("#tblStaff tbody").append(row);
@@ -93,8 +98,7 @@ function viewStaffDetails(staffId) {
             'Authorization': 'Bearer ' + token
         },
         success: (staff) => {
-            // Populate modal with staff details
-            $("#editStaffId").val(staff.staffId);
+            $("#editStaffId").val(staff.Id);
             $("#editFirstName").val(staff.firstName);
             $("#editLastName").val(staff.lastName);
             $("#editDesignation").val(staff.designation);
@@ -105,7 +109,7 @@ function viewStaffDetails(staffId) {
             $("#editContact").val(staff.contact);
             $("#editEmail").val(staff.email);
             $("#editRole").val(staff.role);
-            $("#editField").val(staff.field);
+            $("#editField").val(staff.fields);
             $("#editVehicle").val(staff.vehicle);
         },
         error: (xhr) => {
@@ -123,7 +127,7 @@ function deleteStaff(staffId) {
             return;
         }
         $.ajax({
-            url: `http://localhost:8080/api/v1/staff/api/v1/staff/${staffId}`,
+            url: `http://localhost:8080/api/v1/staff/${staffId}`,
             method: "DELETE",
             timeout: 0,
             headers: {
@@ -141,23 +145,60 @@ function deleteStaff(staffId) {
     }
 }
 
-$("#btnStaffSave").on('click', function () {
-    // Get values from input fields in the 'Add Staff' modal
+$("#btnStaffSave").on("click",function(){
+    saveStaffData();
+});
+
+
+async function saveStaffData() {
+
+    const fieldCode = $("#field").val();
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("No token found. Please log in.");
+        return;
+    }
+
+    let fields = [];
+    try {
+        const fieldResponse = await $.ajax({
+            url: `http://localhost:8080/api/v1/field/${fieldCode}`,
+            method: "GET",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token,
+            }
+        });
+        console.log("Field data fetched:", fieldResponse);
+
+        fields.push({
+            fieldCode: fieldResponse.fieldCode,
+            fieldName: fieldResponse.fieldName,
+            fieldLocation: fieldResponse.fieldLocation,
+            fieldSize: fieldResponse.fieldSize,
+            fieldImage: fieldResponse.fieldImage,
+        });
+    } catch (error) {
+        console.error("Failed to load field data:", error);
+        alert("Failed to load field data. Please try again.");
+        return; // Stop execution if field data cannot be loaded
+    }
+
+    // Collect staff data
     const id = $("#staffId").val();
     const firstName = $("#firstName").val();
     const lastName = $("#lastName").val();
     const designation = $("#designation").val();
     const gender = $("#gender").val();
     const joinedDate = $("#joinedDate").val();
-    const dob = $("#dob").val(); // Expecting `yyyy-MM-dd` input format
+    const dob = $("#dob").val();
     const address = $("#address").val();
     const contact = $("#contact").val();
     const email = $("#email").val();
     const role = $("#role").val();
-    const field = $("#field").val();
-    const vehicle = $("#vehicle").val();
 
-    if (!code || !firstName || !lastName || !designation || !gender || !dob || !address || !contact || !email || !role) {
+    if (!id || !firstName || !lastName || !designation || !gender || !dob || !address || !contact || !email || !role) {
         alert("All fields are required!");
         return;
     }
@@ -174,49 +215,43 @@ $("#btnStaffSave").on('click', function () {
         contact: contact,
         email: email,
         role: role,
-        fieldCodes: field ? field.split(",") : [], 
-        vehicle: vehicle
+        fields
     };
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-        alert("No token found. Please log in.");
-        return;
+    console.log("Prepared staff data:", staffData);
+
+    // Save staff data
+    try {
+        const response = await $.ajax({
+            url: "http://localhost:8080/api/v1/staff",
+            type: "POST",
+            timeout: 0,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': 'Bearer ' + token
+            },
+            data: JSON.stringify(staffData),
+        });
+        console.log("Staff added successfully:", response);
+        alert("Staff added successfully!");
+        clearFields();
+        staffIdGenerate();
+        loadStaffTable();
+    } catch (xhr) {
+        console.error("Error adding staff:", xhr.responseText || xhr.statusText);
+        alert("Failed to add staff: " + (xhr.responseText || xhr.statusText));
     }
-    $.ajax({
-        url: "http://localhost:8080/api/v1/staff",
-        type: "POST",
-        timeout: 0,
-        headers: {
-            "Content-Type": "application/json",
-            'Authorization': 'Bearer ' + token
-        },
-        data: JSON.stringify(staffData), 
-        success: (response) => {
-            console.log("Staff added successfully:", response);
-            alert("Staff added successfully!");
-            clearFields(); // Clear input fields after success
-            fieldIdGenerate(); // Regenerate field IDs if necessary
-        },
-        error: (xhr, status, error) => {
-            console.error("Error adding staff:", xhr.responseText || error);
-            if (xhr.responseText) {
-                alert("Failed to add staff: " + xhr.responseText);
-            } else {
-                alert("Failed to add staff. Please try again.");
-            }
-        }
-    });
-});
+}
+
 
 
 // Clear fields function to reset inputs after submission
 function clearFields() {
-    $("#staffId").val('');
     $("#firstName").val('');
     $("#lastName").val('');
     $("#designation").val('');
     $("#gender").val('');
+    $("joinedDate").val('');
     $("#dob").val('');
     $("#address").val('');
     $("#contact").val('');
@@ -227,13 +262,14 @@ function clearFields() {
 }
 
 function setfieldId() {
+
     const token = localStorage.getItem("token");
     if (!token) {
         alert("No token found. Please log in.");
         return;
     }
     $.ajax({
-        url: "http://localhost:8080/api/v1/field", // API endpoint to fetch fields
+        url: "http://localhost:8080/api/v1/field",
         type: "GET",
         timeout: 0,
         headers: {
@@ -287,13 +323,13 @@ document.getElementById("btnUpdateStaff").addEventListener("click", function () 
         lastName: $("#editLastName").val(),
         designation: $("#editDesignation").val(),
         gender: $("#editGender").val(),
-        joinedDate: $("#editJoinedDate").val(), // Ensure the format is `yyyy-MM-dd`
-        dob: $("#editDOB").val(), // Ensure the format is `yyyy-MM-dd`
+        joinedDate: $("#editJoinedDate").val(),
+        dob: $("#editDOB").val(),
         contact: $("#editContact").val(),
         address: $("#editAddress").val(),
         email: $("#editEmail").val(),
         role: $("#editRole").val(),
-        fieldCodes: $("#editField").val() ? $("#editField").val().split(",") : [], // Split multiple fields if provided
+        fieldCodes: $("#editField").val() ? $("#editField").val().split(",") : [],
         vehicle: $("#editVehicle").val()
     };
 
@@ -310,18 +346,18 @@ document.getElementById("btnUpdateStaff").addEventListener("click", function () 
         return;
     }
     $.ajax({
-        url: `http://localhost:8080/api/v1/staff/${updateStaffDTO.id}`, // Update endpoint
+        url: `http://localhost:8080/api/v1/staff/${updateStaffDTO.id}`,
         type: "PUT",
         timeout: 0,
         headers: {
             "Content-Type": "application/json",
             'Authorization': 'Bearer ' + token
         },
-        data: JSON.stringify(updateStaffDTO), // Convert object to JSON string
+        data: JSON.stringify(updateStaffDTO),
         success: function () {
             alert("Staff details updated successfully!");
-            $("#viewStaffModal").modal("hide"); // Close modal after success
-            loadStaffTable(); // Reload staff table to reflect changes
+            $("#viewStaffModal").modal("hide");
+            loadStaffTable(); 
         },
         error: function (xhr) {
             console.error("Error:", xhr.responseText || xhr.statusText);
@@ -331,7 +367,6 @@ document.getElementById("btnUpdateStaff").addEventListener("click", function () 
 });
 
 
-staffIdGenerate();
 function staffIdGenerate() {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -339,7 +374,7 @@ function staffIdGenerate() {
         return;
     }
     $.ajax({
-        url: "http://localhost:8080/api/v1/staff", // API endpoint to fetch fields
+        url: "http://localhost:8080/api/v1/staff",
         type: "GET",
         timeout: 0,
         headers: {
@@ -383,7 +418,5 @@ function staffIdGenerate() {
 }
 
 $(document).ready(() => {
-    loadStaffTable();
-
     $("#staffId, #firstName, #lastName, #contact, #email").on("keyup blur", checkStaffValidity);
 });

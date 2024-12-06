@@ -59,8 +59,9 @@ function displaySelectedImage(event) {
 }
 
 function clearFields() {
-    $("#fieldCode").val('');         
-    $("#fieldName").val('');        
+    fieldIdGenerate();        
+    $("#fieldName").val(''); 
+    $("#fieldLocation").val('');       
     $("#sizeOfTheField").val('');         
     $("#cropDetails").val('');           
     $("#staffDetails").val('');           
@@ -72,7 +73,6 @@ function clearFields() {
 fieldIdGenerate();
 function fieldIdGenerate() {
     const token = localStorage.getItem("token");
-    console.log(token);
     if (!token) {
         alert("No token found. Please log in.");
         return;
@@ -132,7 +132,6 @@ function loadFieldTable() {
         },
         success: (fields) => {
             fields.forEach((field) => {
-                console.log(field);
                 let row = `
                     <tr>
                         <td>${field.fieldCode}</td>
@@ -161,7 +160,7 @@ $("#saveField").on("click", function () {
     const fieldSize = $("#sizeOfTheField").val();
     const fieldCrops = $("#cropDetails").val();
     const fieldStaff = $("#staffDetails").val();
-    const fieldImageFile = $("#fieldImage")[0].files[0]; // File input
+    const fieldImageFile = $("#fieldImage")[0].files[0];
 
     
     if (!fieldCode || !fieldName || !fieldSize) {
@@ -216,14 +215,22 @@ $("#saveField").on("click", function () {
                     loadFieldTable();
                 },
                 error: (error) => {
-                    console.error("Error adding field:", error);
-                    alert("Failed to add field. Please try again.");
+                    if (error.status === 403) {
+                        alert("Access Denied: You do not have permission to perform this action.");
+                    }else{
+                        console.error("Error adding field:", error);
+                        alert("Failed to add field. Please try again.");
+                    }
                 },
             });
         })
         .catch((error) => {
-            console.error("Error converting image to Base64:", error);
-            alert("Failed to process the image. Please try again.");
+            if (error.status === 403) {
+                alert("Access Denied: You do not have permission to perform this action.");
+            }else{
+                console.error("Error converting image to Base64:", error);
+                alert("Failed to process the image. Please try again.");
+            }
         });
 });
 
@@ -258,13 +265,11 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
     const fieldName = $("#editFieldName").val();
     const fieldLocation = $("#editFieldLocation").val();
     const fieldSize = $("#editFieldSize").val();
-    const fieldCrops = $("#editFieldCrops").val();
-    const fieldStaff = $("#editFieldStaff").val();
     const fieldImageFile = $("#editFieldImage")[0].files[0]; // New image file
     const existingImageBase64 = $("#imageUpdateFieldView img").attr("src"); // Existing image base64
 
     // Validate required fields
-    if (!fieldCode || !fieldName || !fieldLocation || !fieldSize || !fieldCrops || !fieldStaff) {
+    if (!fieldCode || !fieldName || !fieldLocation || !fieldSize) {
         alert("All fields are required!");
         return;
     }
@@ -273,11 +278,11 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
     const convertImageToBase64 = (file) => {
         return new Promise((resolve, reject) => {
             if (!file) {
-                resolve(null); // No new image provided
+                resolve(null);
                 return;
             }
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(",")[1]); // Extract base64 part
+            reader.onload = () => resolve(reader.result.split(",")[1]);
             reader.onerror = (error) => reject(error);
             reader.readAsDataURL(file);
         });
@@ -286,7 +291,7 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
     // Determine the image to use: new file or existing base64
     const processImage = fieldImageFile
         ? convertImageToBase64(fieldImageFile) // Convert new file
-        : Promise.resolve(existingImageBase64 ? existingImageBase64.split(",")[1] : null); // Use existing base64 or null
+        : Promise.resolve(existingImageBase64 ? existingImageBase64.split(",")[1] : null);
 
     processImage
         .then((base64Image) => {
@@ -296,8 +301,6 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
                 fieldName: fieldName,
                 fieldLocation: fieldLocation,
                 fieldSize: fieldSize,
-                fieldCrops: fieldCrops,
-                fieldStaff: fieldStaff,
                 fieldImage: base64Image, // Base64 string or null
             };
 
@@ -327,8 +330,12 @@ document.getElementById("fieldUpdateBtn").addEventListener("click", function () 
             });
         })
         .catch((error) => {
-            console.error("Error converting image to Base64:", error);
-            alert("Failed to process the image. Please try again.");
+            if (error.status === 403) {
+                alert("Access Denied: You do not have permission to perform this action.");
+              }else{
+                console.error("Error converting image to Base64:", error);
+                alert("Failed to process the image. Please try again.");
+              }
         });
 });
 
@@ -353,18 +360,22 @@ function editField(fieldCode) {
             $("#editFieldName").val(field.fieldName);
             $("#editFieldLocation").val(field.fieldLocation);
             $("#editFieldSize").val(field.fieldSize);
-            $("#editFieldCrops").val(field.crops);
-            $("#editFieldStaff").val(field.staff);
 
-            if (field.fieldImage1) {
-                $("#currentFieldImage1").attr("src", `http://localhost:8080/images/${field.fieldImage}`);
+            if (field.fieldImage) {
+                const base64Image = `data:image/jpeg;base64,${field.fieldImage}`;
+                $("#currentFieldImage1").attr("src", base64Image);
+                $("#currentFieldImage1").show();
             } else {
                 $("#currentFieldImage1").attr("src", ""); 
             }
         },
         error: (xhr) => {
-            console.error("Failed to load field data:", xhr.status);
-            alert("Failed to load field data. Please try again.");
+            if (error.status === 403) {
+                alert("Access Denied: You do not have permission to perform this action.");
+            }else{
+                console.error("Failed to load field data:", xhr.status);
+                alert("Failed to load field data. Please try again.");
+            }
         }
     });
 }
@@ -389,7 +400,25 @@ function deleteField(fieldCode) {
                 alert("Field deleted successfully!");
                 loadFieldTable();
             },
-            error: (xhr) => console.error("Failed to delete field:", xhr.status),
+            error: (xhr) => {
+                if (error.status === 403) {
+                    alert("Access Denied: You do not have permission to perform this action.");
+                }else{
+                    console.error("Failed to delete field:", xhr.status)
+                }
+            },
         });
     }
 }
+
+$(document).ready(function () {
+    $("#signout").on("click", function () {
+        const userConfirmed = confirm("Are you sure you want to log out?");
+        if (userConfirmed) {
+            localStorage.removeItem("token");
+            sessionStorage.clear();
+  
+            window.location.href = "index.html"; 
+        }
+    });
+  });

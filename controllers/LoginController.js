@@ -49,7 +49,7 @@ document.getElementById("btnSignup").addEventListener("click", () => {
         );
       },
     });
-  });
+});
 
 
   document.getElementById("btnLogin").addEventListener("click", () => {
